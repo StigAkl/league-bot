@@ -2,7 +2,6 @@ const {prefix, token, riotApiToken} = require("./botconfig.json");
 const Discord = require("Discord.js"); 
 const {RichEmbed} = require('Discord.js') 
 const bot = new Discord.Client();
-const LeagueDAO = require('./Database/db')
 const URL = require("./Api/api_endpoints");
 const fs = require('fs');
 
@@ -35,7 +34,7 @@ const users = [
 
 bot.on("ready", async () =>  {
     console.log(`${bot.user.username} er nå online`);
-     var db = new LeagueDAO("./Database/summoners.db")
+     //var db = new LeagueDAO("./Database/summoners.db")
 })
 
 
