@@ -1,12 +1,19 @@
-const botAuth = require("./botconfig.json"); 
+const {prefix, token, riotApiToken} = require("./botconfig.json"); 
 const Discord = require("Discord.js"); 
 const {RichEmbed} = require('Discord.js') 
 const bot = new Discord.Client();
-const prefix = botAuth.prefix; 
 const LeagueDAO = require('./Database/db')
 const URL = require("./Api/api_endpoints");
+const fs = require('fs');
 
+bot.commands = new Discord.Collection(); 
+const commandFiles = fs.readdirSync('./Commands').filter(file => file.endsWith('.js')); 
 
+//Fetch commands
+for (const file of commandFiles) {
+    const command = require(`./Commands/${file}`); 
+    bot.commands.set(command.name, command); 
+}
 
 //Some test data
 const users = [
@@ -26,6 +33,29 @@ const users = [
 bot.on("ready", async () =>  {
     console.log(`${bot.user.username} is online`);
      var db = new LeagueDAO("./Database/summoners.db")
+})
+
+
+//HJandle commands
+bot.on("message", async message => {
+
+    if (!message.content.startsWith(prefix) || message.author.bot) return; 
+
+    const args = message.content.slice(prefix.length).split(/ +/);
+    const command = args.shift().toLowerCase(); 
+
+
+    if(!bot.commands.has(command)) {
+        console.log("Command not found:", command); 
+        return; 
+    } 
+
+    try {
+        bot.commands.get(command).execute(message, args); 
+    } catch(error) {
+        console.error(error); 
+        message.reply('There was an error trying to execute that command!'); 
+    }
 })
 
 
@@ -69,7 +99,7 @@ bot.on('message', message => {
       });
 
 function createtUrl(endpoint, param) {
-    return URL.basePath+endpoint+param+"?api_key="+botAuth.riotApiToken; 
+    return URL.basePath+endpoint+param+"?api_key="+riotApiToken; 
 }
 
-bot.login(botAuth.token); 
+bot.login(token); 
