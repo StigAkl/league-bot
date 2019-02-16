@@ -10,13 +10,17 @@ module.exports = {
               axios.get(URL.basePath+URL.summonerByName+summonerName+"?api_key="+riotApiToken).then(function(response) {
                       callback(response); 
               }).catch(error => {
-                        callback(error.response); 
+                      callback(error.response); 
               })
       },
 
-      fetchMatches: (summonerName) => {
-              console.log("Fetching matches for ", summonerName);
-      }, 
+      fetchLeague: (summonerId, callback) => {
+              axios.get(URL.basePath+URL.leagueBySummonerId+summonerId+"?api_key="+riotApiToken).then(function(response) {
+                callback(response); 
+              }).catch(error => {
+                      callback(error.response)
+              })
+      },
 
       requestOk(status) {
               if(status === 200) {

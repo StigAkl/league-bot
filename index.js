@@ -4,6 +4,7 @@ const {RichEmbed} = require('Discord.js')
 const bot = new Discord.Client();
 const URL = require("./Api/api_endpoints");
 const fs = require('fs');
+const LeagueDAO = require('./Database/db')
 
 //Collections
 const commands = new Discord.Collection(); 
@@ -34,11 +35,12 @@ const users = [
 
 bot.on("ready", async () =>  {
     console.log(`${bot.user.username} er nå online`);
-     //var db = new LeagueDAO("./Database/summoners.db")
+     var db = new LeagueDAO("./Database/summoners.db")
+    // db.createSummonerTable(); 
 })
 
 
-//HJandle commands
+//Handle commands
 bot.on("message", async message => {
     if (!message.content.startsWith(prefix) || message.author.bot) return; 
 

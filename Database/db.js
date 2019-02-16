@@ -41,43 +41,47 @@ class LeagueDAO {
         SELECT * FROM summoners WHERE id = ?
         `;
 
-        this.db.get("SELECT * FROM summoners WHERE id=?", summoner.id, (err, row) => {
+        this.db.get("SELECT * FROM summoners WHERE id=?", summoner.author_id, (err, row) => {
             let message = "";
             if(err) {
                 message = "Det har skjedd en feil med databasen.. :/ "
             } else {
                 if(row) {
-                    message = row.summonerName + " er allerede lagt til!"; 
+                    message = "Følgende bruker er allerede registrert på deg: " + row.summonerName; 
                 } else {
-                    message = summoner.name + " vil nå bli lagt til"; 
-                    console.log(summoner); 
+                    this.db.run(`INSERT INTO summoners VALUES (${summoner.author_id}, '${summoner.name}', '${summoner.id}', '${summoner.accoundId}', '${summoner.tier}', ${summoner.rank}, 0)`, (error) => {
+                        if(error) {
+                            message = "Det oppstod en feil når jeg forsøkte å registrere en bruker på deg";  
+                        } else {
+                            message = "Brukeren " + summoner.name + " er nå registrert på deg og vil bli tracket med live match information i fremtiden. Stay tuned! :smile:"; 
+
+                        }
+
+                        callback(message); 
+                    }); 
                 }
             }
-           callback(message); 
+           
+            callback(message); 
 
         }); 
+    }
 
+    removeSummoner(id, callback) {
+        let sql = `
+        DELETE FROM summoners WHERE id = ${id}
+        `;
 
-
-        /* return this.db.get(sql, [summoner.id], (err, row) => {
+        console.log("ID:",id); 
+        this.db.run(sql, function(err) {
             if(err) {
-                console.log("Error: ", err.message);
-                return; 
-            }
-
-            if(!row) {
-                //Add to database
-                return this.db.run(`INSERT INTO summoners VALUES(1234, 'Zekinava', 'kfkfkf', 'alalal', 'Gold', '1', 0)`, (err) => {
-                    if(!err) {
-                        console.log("Sucesss") 
-                    } else {
-                        console.log("Failed", err)
-                    }
-                })
+                callback(err)
+                console.log("error", err); 
             } else {
-                return row; 
-            } 
-        }) */
+                callback("Ingen league kontoer er nå knyttet til deg")
+                console.log("Success"); 
+            }
+        })
     }
 }
 
