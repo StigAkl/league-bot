@@ -6,13 +6,16 @@ const LeagueDAO = require('./Database/db')
 const URL = require("./Api/api_endpoints");
 const fs = require('fs');
 
-bot.commands = new Discord.Collection(); 
+//Collections
+const commands = new Discord.Collection(); 
+const cooldowns = new Discord.Collection(); 
+
 const commandFiles = fs.readdirSync('./Commands').filter(file => file.endsWith('.js')); 
 
 //Fetch commands
 for (const file of commandFiles) {
     const command = require(`./Commands/${file}`); 
-    bot.commands.set(command.name, command); 
+    commands.set(command.name, command); 
 }
 
 //Some test data
@@ -31,33 +34,61 @@ const users = [
 
 
 bot.on("ready", async () =>  {
-    console.log(`${bot.user.username} is online`);
+    console.log(`${bot.user.username} er nå online`);
      var db = new LeagueDAO("./Database/summoners.db")
 })
 
 
 //HJandle commands
 bot.on("message", async message => {
-
     if (!message.content.startsWith(prefix) || message.author.bot) return; 
 
     const args = message.content.slice(prefix.length).split(/ +/);
-    const command = args.shift().toLowerCase(); 
+    const commandName = args.shift().toLowerCase(); 
+    const command = commands.get(commandName); 
 
-
-    if(!bot.commands.has(command)) {
-        console.log("Command not found:", command); 
+    if(!command) {
+        console.log("Kunne ikke finne kommandoen: ", commandName); 
         return; 
-    } 
+    }
+
+   if(checkCooldowns(command, message)) return; 
 
     try {
-        bot.commands.get(command).execute(message, args); 
+        command.execute(message, args); 
     } catch(error) {
         console.error(error); 
-        message.reply('There was an error trying to execute that command!'); 
+        message.reply('Det oppstod en feil under utførelsen av kommandoen, prøv igjen senere!'); 
     }
 })
 
+
+
+
+
+function checkCooldowns(command, message) {
+    if(!cooldowns.has(command.name)) {
+        cooldowns.set(command.name, new Discord.Collection()); 
+    }
+
+    const now = Date.now(); 
+    const timestamps = cooldowns.get(command.name); 
+    const cooldownAmount = (command.cooldown || 0) * 1000; 
+
+    if(timestamps.has(message.author.id)) {
+        const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
+
+        if(now < expirationTime) {
+            const timeLeft = (expirationTime - now) / 1000; 
+            message.reply(`Vennligst vent ${timeLeft.toFixed(1)} sekunder før du bruker ${command.name} igjen. Ingen liker spam :smile:`);
+            return true;
+        }
+    } else {
+        timestamps.set(message.author.id, now);
+        setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
+        return false; 
+    }
+}
 
 
 
@@ -71,22 +102,6 @@ bot.on("message", async message => {
 
 
 // Command stuff 0
-
-bot.on("message", async message => {
-    if (message.author.bot) return; 
-
-    if(message.channel.type === "dm") return; 
-
-    let messageArray = message.content.split(" "); 
-    let cmd = messageArray[0]; 
-    let args = messageArray.slice(1); 
-
-    //Action
-    if(cmd === `${prefix}status`) {
-        return message.channel.send("Hello! My name is KangarooBot and I am finally back in business! I am currently getting rewritten in JavaScript, so that is AWESOME")
-    }
-})
-
 
 bot.on('message', message => {
         if (message.content === 'how to embed') {
