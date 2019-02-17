@@ -9,8 +9,11 @@ module.exports = {
     execute(message, args) {
 
         let db = new LeagueDAO('./Database/summoners.db'); 
-
-        fetchSummoner(args[0], function(response) {
+        let summonerName = ""; 
+        for(arg of args) {
+            summonerName+= arg + ' ';
+        }
+        fetchSummoner(summonerName.trim(), function(response) {
             if(requestOk(response.status)){
                 const summoner = response.data; 
                 summoner.author_id = message.author.id;  
@@ -32,9 +35,6 @@ module.exports = {
                     db.addSummoner(summoner, callback);
                 })
 
-
-
-
             } else {
                 if(response.data.status.status_code === 404) {
                     callback("Kunne ikke finne noen summoners med dette navnet. Sjekk at du skrev inn riktig navn")
@@ -44,9 +44,6 @@ module.exports = {
             }
         })
 
-
-
-        
         function callback(msg) {
             if(msg) {
                 message.channel.send(msg);

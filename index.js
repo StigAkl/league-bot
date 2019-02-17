@@ -5,11 +5,12 @@ const bot = new Discord.Client();
 const URL = require("./Api/api_endpoints");
 const fs = require('fs');
 const LeagueDAO = require('./Database/db')
+const {fetchActiveMatch, requestOk} = require('./Api/api_fetchers'); 
 
 //Collections
 const commands = new Discord.Collection(); 
 const cooldowns = new Discord.Collection(); 
-
+const activeGames = new Discord.Collection(); 
 const commandFiles = fs.readdirSync('./Commands').filter(file => file.endsWith('.js')); 
 
 //Fetch commands
@@ -33,10 +34,10 @@ const users = [
 ]; 
 
 
+
 bot.on("ready", async () =>  {
     console.log(`${bot.user.username} er nå online`);
-     var db = new LeagueDAO("./Database/summoners.db")
-    // db.createSummonerTable(); 
+    setInterval(() => { checkActiveGames() }, 20000); 
 })
 
 
@@ -64,8 +65,44 @@ bot.on("message", async message => {
 })
 
 
+/* Helper functions */ 
 
+function checkActiveGames() {
+    const db = new LeagueDAO("./Database/summoners.db");
+    db.getAllSummoners((summoners) => {
+        for(summoner of summoners) {
+            fetchActiveMatch(summoner.encryptedSummonerId, (response) => { 
+                if(response.status === 200) {
 
+                    if(!activeGames.has(summoner.encryptedSummonerId)) {
+                    console.log(summoner.summonerName + " just went in a new game");
+                    let team1 = []; 
+                    let team2 = []; 
+                    
+                    let team1_id = response.data.participants[0].teamId;
+                    for(p of response.data.participants) {
+                        if (p.teamId === team1_id) {
+                            team1.push(p); 
+                        }
+                        else {
+                            team2.push(p); 
+                        }
+                    }
+                    
+                    activeGames.set(summoner.encryptedSummonerId, response.data.gameId); 
+                } else {
+                    console.log("Already checked game"); 
+                }
+                } else {
+                    if(activeGames.has(summoner.encryptedSummonerId)) {
+                        console.log(summoner.summonerName + " just finished a game! Game id: ", activeGames.get(summoner.encryptedSummonerId)); 
+                        activeGames.delete(summoner.encryptedSummonerId); 
+                    }
+                } 
+            })
+        }
+    }) 
+}
 
 function checkCooldowns(command, message) {
     if(!cooldowns.has(command.name)) {
