@@ -1,5 +1,5 @@
 const {prefix, token, riotApiToken} = require("./botconfig.json"); 
-const Discord = require("Discord.js"); 
+const Discord = require("discord.js"); 
 const {RichEmbed} = require('Discord.js') 
 const bot = new Discord.Client();
 const URL = require("./Api/api_endpoints");
@@ -12,6 +12,10 @@ const commands = new Discord.Collection();
 const cooldowns = new Discord.Collection(); 
 const activeGames = new Discord.Collection(); 
 const commandFiles = fs.readdirSync('./Commands').filter(file => file.endsWith('.js')); 
+const announcementChannel = undefined; 
+
+bot.login(token); 
+
 
 //Fetch commands
 for (const file of commandFiles) {
@@ -37,7 +41,9 @@ const users = [
 
 bot.on("ready", async () =>  {
     console.log(`${bot.user.username} er nå online`);
-    setInterval(() => { checkActiveGames() }, 20000); 
+    const db = new LeagueDAO("./Database/summoners.db"); 
+    db.createSummonerTable(); 
+    setInterval(() => { checkActiveGames(sendMessage, bot.channels.get("279995156503986176")) }, 20000); 
 })
 
 
@@ -67,12 +73,13 @@ bot.on("message", async message => {
 
 /* Helper functions */ 
 
-function checkActiveGames() {
+async function checkActiveGames(callback, channel) {
     const db = new LeagueDAO("./Database/summoners.db");
     db.getAllSummoners((summoners) => {
-        for(summoner of summoners) {
+        for(let i = 0; i < summoners.length; i++) {
+            let summoner = summoners[i]; 
             fetchActiveMatch(summoner.encryptedSummonerId, (response) => { 
-                if(response.status === 200) {
+                if(response.status === 200 && (response.data.gameQueueConfigId === 420 || response.data.gameQueueConfigId === 440)) {
 
                     if(!activeGames.has(summoner.encryptedSummonerId)) {
                     console.log(summoner.summonerName + " just went in a new game");
@@ -88,20 +95,112 @@ function checkActiveGames() {
                             team2.push(p); 
                         }
                     }
+
+                    const spectatorData = {
+                        team1: team1, 
+                        team2: team2, 
+                        playerSpectating: summoner,
+                        matchId: response.data.gameId
+                    }
+
+                    activeGames.set(summoner.encryptedSummonerId, spectatorData); 
+                    console.log("ACTIVE!!!!")
+                    console.log(activeGames.get(summoner.encryptedSummonerId).matchId);
+
+                    let embed = formatTeams(spectatorData); 
+
+                    callback(embed, channel); 
                     
-                    activeGames.set(summoner.encryptedSummonerId, response.data.gameId); 
+
                 } else {
-                    console.log("Already checked game"); 
+                    console.log("Game is already tracked"); 
                 }
                 } else {
                     if(activeGames.has(summoner.encryptedSummonerId)) {
-                        console.log(summoner.summonerName + " just finished a game! Game id: ", activeGames.get(summoner.encryptedSummonerId)); 
-                        activeGames.delete(summoner.encryptedSummonerId); 
+                        console.log(summoner.summonerName + " just finished a game! Game id: ", activeGames.get(summoner.encryptedSummonerId).matchId); 
+                        setTimeout(() => {activeGames.delete(summoner.encryptedSummonerId)}, 60000); 
+
+                        //TODO: Add post game stats for {gameId}
                     }
                 } 
             })
+
+            (function(i){
+                setTimeout(function(){
+              }, 500 * i+1)
+             })(i);
         }
     }) 
+}
+
+function sendMessage(embed, channel) {
+    console.log("Sending..")
+    console.log(embed)
+    channel.send(embed)
+}
+
+function formatTeams(spectatorData) {
+
+    console.log(spectatorData.playerSpectating.id); 
+     let playerTeamId = getTeamId(spectatorData.team1, spectatorData.team2, spectatorData.playerSpectating);  
+
+     let enemyTeamObject = spectatorData.team1[0].teamId !== playerTeamId ? spectatorData.team1 : spectatorData.team2; 
+     let allyTeamObject = spectatorData.team1[0].teamId === playerTeamId ? spectatorData.team1 : spectatorData.team2; 
+
+     let enemyTeam = ""; 
+     let allyTeam = "";
+
+     for(player of enemyTeamObject) {
+        enemyTeam += player.summonerName+"\n"
+     }
+
+     for (player of allyTeamObject) {
+         if(player.summonerId === spectatorData.playerSpectating.encryptedSummonerId) {
+            allyTeam += "**"+player.summonerName+"**\n"
+         }
+
+         else {
+            allyTeam += player.summonerName+"\n"
+         }
+     }
+
+     let embed = {
+         embed: {
+            color: 3447003,
+            author: "Test",
+            title: "Live match information",
+            description: "Live match data for <@"+spectatorData.playerSpectating.id+"> as **" + spectatorData.playerSpectating.summonerName + "**",
+            fields: [{
+                name: "Your Team",
+                value: allyTeam,
+                inline: true
+            },
+            {
+                name: "Enemy Team",
+                value: enemyTeam, 
+                inline: true
+            }
+        ]
+     }
+    }
+
+     return embed; 
+
+}
+
+
+function getTeamId(team1, team2, summoner) {
+    for(player of team1) {
+        if (player.summonerId === summoner.encryptedSummonerId) {
+            return player.teamId; 
+        }
+    }
+
+    for (player of team2) {
+        if(player.summonerId === summoner.encryptedSummonerId) {
+            return player.teamId; 
+        }
+    }
 }
 
 function checkCooldowns(command, message) {
@@ -128,6 +227,10 @@ function checkCooldowns(command, message) {
     }
 }
 
+function timer(ms) {
+    return new Promise(res => setTimeout(res, ms));
+   }
+
 
 
 
@@ -142,17 +245,17 @@ function checkCooldowns(command, message) {
 // Command stuff 0
 
 bot.on('message', message => {
-        if (message.content === 'how to embed') {
+        if (message.content === '!test') {
           const embed = new RichEmbed()
-            .setTitle('A slick little embed')
+            .setTitle('Test')
             .setColor(0xFF0000)
             .setDescription('Hello, this is a slick embed!');
-          message.reply(embed);
+         
+            let user = bot.users.get(237187264424181760) 
+            message.channel.send("Test: " + user); 
         }
       });
 
 function createtUrl(endpoint, param) {
     return URL.basePath+endpoint+param+"?api_key="+riotApiToken; 
 }
-
-bot.login(token); 

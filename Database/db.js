@@ -16,7 +16,7 @@ class LeagueDAO {
     createSummonerTable() {
         const sql = `
         CREATE TABLE IF NOT EXISTS summoners (
-            id INTEGER PRIMARY KEY,
+            id TEXT PRIMARY KEY,
             summonerName TEXT, 
             encryptedSummonerId TEXT,
             encryptedAccountId TEXT,
@@ -48,7 +48,7 @@ class LeagueDAO {
                 if(row) {
                     message = "Følgende bruker er allerede registrert på deg: " + row.summonerName; 
                 } else {
-                    this.db.run(`INSERT INTO summoners VALUES (${summoner.author_id}, '${summoner.name}', '${summoner.id}', '${summoner.accountId}', '${summoner.tier}', ${summoner.rank}, 0)`, (error) => {
+                    this.db.run(`INSERT INTO summoners VALUES ('${summoner.author_id}', '${summoner.name}', '${summoner.id}', '${summoner.accountId}', '${summoner.tier}', ${summoner.rank}, 0)`, (error) => {
                         if(error) {
                             message = "Det oppstod en feil når jeg forsøkte å registrere en bruker på deg";  
                         } else {
