@@ -118,24 +118,20 @@ async function checkActiveGames(callback, channel) {
                 } else {
                     if(activeGames.has(summoner.encryptedSummonerId)) {
                         console.log(summoner.summonerName + " just finished a game! Game id: ", activeGames.get(summoner.encryptedSummonerId).matchId); 
-                        setTimeout(() => {activeGames.delete(summoner.encryptedSummonerId)}, 60000); 
+                        setTimeout(() => {
+                        callback("<@"+spectatorData.playerSpectating.id+"> ble nettopp ferdig med et game. Resultat: <ikke implementert>")
+                        activeGames.delete(summoner.encryptedSummonerId)
+                        }, 60000); 
 
                         //TODO: Add post game stats for {gameId}
                     }
                 } 
             })
-
-            (function(i){
-                setTimeout(function(){
-              }, 500 * i+1)
-             })(i);
         }
     }) 
 }
 
 function sendMessage(embed, channel) {
-    console.log("Sending..")
-    console.log(embed)
     channel.send(embed)
 }
 
