@@ -128,15 +128,44 @@ async function checkActiveGames(callback, channel) {
                         }
                     } 
                 })
-
             }, i*1000);
+
+                    const spectatorData = {
+                        team1: team1, 
+                        team2: team2, 
+                        playerSpectating: summoner,
+                        matchId: response.data.gameId
+                    }
+
+                    activeGames.set(summoner.encryptedSummonerId, spectatorData); 
+                    console.log("ACTIVE!!!!")
+                    console.log(activeGames.get(summoner.encryptedSummonerId).matchId);
+
+                    let embed = formatTeams(spectatorData); 
+
+                    callback(embed, channel); 
+                    
+
+                } else {
+                    console.log("Game is already tracked"); 
+                }
+                } else {
+                    if(activeGames.has(summoner.encryptedSummonerId)) {
+                        console.log(summoner.summonerName + " just finished a game! Game id: ", activeGames.get(summoner.encryptedSummonerId).matchId); 
+                        setTimeout(() => {
+                        callback("<@"+spectatorData.playerSpectating.id+"> ble nettopp ferdig med et game. Resultat: <ikke implementert>")
+                        activeGames.delete(summoner.encryptedSummonerId)
+                        }, 60000); 
+
+                        //TODO: Add post game stats for {gameId}
+                    }
+                } 
+            })
         }
     }) 
 }
 
 function sendMessage(embed, channel) {
-    console.log("Sending..")
-    console.log(embed)
     channel.send(embed)
 }
 
