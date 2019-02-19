@@ -104,24 +104,19 @@ async function checkActiveGames(callback, channel) {
                     }
 
                     activeGames.set(summoner.encryptedSummonerId, spectatorData); 
-                    console.log("ACTIVE!!!!")
                     console.log(activeGames.get(summoner.encryptedSummonerId).matchId);
 
                     let embed = formatTeams(spectatorData); 
 
                     callback(embed, channel); 
-                    
-
                 } else {
                     console.log("Game is already tracked"); 
                 }
                 } else {
                     if(activeGames.has(summoner.encryptedSummonerId)) {
+                        callback("(TEST): <@"+spectatorData.playerSpectating.id+"> ble nettopp ferdig med et game. Resultat: <ike implementert>")
                         console.log(summoner.summonerName + " just finished a game! Game id: ", activeGames.get(summoner.encryptedSummonerId).matchId); 
-                        setTimeout(() => {
-                        callback("<@"+spectatorData.playerSpectating.id+"> ble nettopp ferdig med et game. Resultat: <ikke implementert>")
-                        activeGames.delete(summoner.encryptedSummonerId)
-                        }, 60000); 
+                        setTimeout(() => {activeGames.delete(summoner.encryptedSummonerId)}, 60000); 
 
                         //TODO: Add post game stats for {gameId}
                     }
@@ -136,10 +131,7 @@ function sendMessage(embed, channel) {
 }
 
 function formatTeams(spectatorData) {
-
-    console.log(spectatorData.playerSpectating.id); 
      let playerTeamId = getTeamId(spectatorData.team1, spectatorData.team2, spectatorData.playerSpectating);  
-
      let enemyTeamObject = spectatorData.team1[0].teamId !== playerTeamId ? spectatorData.team1 : spectatorData.team2; 
      let allyTeamObject = spectatorData.team1[0].teamId === playerTeamId ? spectatorData.team1 : spectatorData.team2; 
 
