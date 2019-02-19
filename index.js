@@ -5,7 +5,7 @@ const bot = new Discord.Client();
 const URL = require("./Api/api_endpoints");
 const fs = require('fs');
 const LeagueDAO = require('./Database/db')
-const {fetchActiveMatch, requestOk} = require('./Api/api_fetchers'); 
+const {fetchActiveMatch} = require('./Api/api_fetchers'); 
 
 //Collections
 const commands = new Discord.Collection(); 
@@ -42,7 +42,6 @@ const users = [
 bot.on("ready", async () =>  {
     console.log(`${bot.user.username} er nå online`);
     const db = new LeagueDAO("./Database/summoners.db"); 
-    db.createSummonerTable(); 
     setInterval(() => { checkActiveGames(sendMessage, bot.channels.get("279995156503986176")) }, 20000); 
 })
 
@@ -78,57 +77,59 @@ async function checkActiveGames(callback, channel) {
     db.getAllSummoners((summoners) => {
         for(let i = 0; i < summoners.length; i++) {
             let summoner = summoners[i]; 
-            fetchActiveMatch(summoner.encryptedSummonerId, (response) => { 
-                if(response.status === 200 && (response.data.gameQueueConfigId === 420 || response.data.gameQueueConfigId === 440)) {
+        
+            
+            setTimeout( function time() {
 
-                    if(!activeGames.has(summoner.encryptedSummonerId)) {
-                    console.log(summoner.summonerName + " just went in a new game");
-                    let team1 = []; 
-                    let team2 = []; 
-                    
-                    let team1_id = response.data.participants[0].teamId;
-                    for(p of response.data.participants) {
-                        if (p.teamId === team1_id) {
-                            team1.push(p); 
+                fetchActiveMatch(summoner.encryptedSummonerId, (response) => { 
+                    console.log("Checking summoner ", i)
+                    if(response.status === 200 && (response.data.gameQueueConfigId === 420 || response.data.gameQueueConfigId === 440)) {
+    
+                        if(!activeGames.has(summoner.encryptedSummonerId)) {
+                        console.log(summoner.summonerName + " just went in a new game");
+                        let team1 = []; 
+                        let team2 = []; 
+                        
+                        let team1_id = response.data.participants[0].teamId;
+                        for(p of response.data.participants) {
+                            if (p.teamId === team1_id) {
+                                team1.push(p); 
+                            }
+                            else {
+                                team2.push(p); 
+                            }
                         }
-                        else {
-                            team2.push(p); 
+    
+                        const spectatorData = {
+                            team1: team1, 
+                            team2: team2, 
+                            playerSpectating: summoner,
+                            matchId: response.data.gameId
                         }
+    
+                        activeGames.set(summoner.encryptedSummonerId, spectatorData); 
+                        console.log("ACTIVE!!!!")
+                        console.log(activeGames.get(summoner.encryptedSummonerId).matchId);
+    
+                        let embed = formatTeams(spectatorData); 
+    
+                        callback(embed, channel); 
+                        
+    
+                    } else {
+                        console.log("Game is already tracked"); 
                     }
+                    } else {
+                        if(activeGames.has(summoner.encryptedSummonerId)) {
+                            console.log(summoner.summonerName + " just finished a game! Game id: ", activeGames.get(summoner.encryptedSummonerId).matchId); 
+                            setTimeout(() => {activeGames.delete(summoner.encryptedSummonerId)}, 60000); 
+    
+                            //TODO: Add post game stats for {gameId}
+                        }
+                    } 
+                })
 
-                    const spectatorData = {
-                        team1: team1, 
-                        team2: team2, 
-                        playerSpectating: summoner,
-                        matchId: response.data.gameId
-                    }
-
-                    activeGames.set(summoner.encryptedSummonerId, spectatorData); 
-                    console.log("ACTIVE!!!!")
-                    console.log(activeGames.get(summoner.encryptedSummonerId).matchId);
-
-                    let embed = formatTeams(spectatorData); 
-
-                    callback(embed, channel); 
-                    
-
-                } else {
-                    console.log("Game is already tracked"); 
-                }
-                } else {
-                    if(activeGames.has(summoner.encryptedSummonerId)) {
-                        console.log(summoner.summonerName + " just finished a game! Game id: ", activeGames.get(summoner.encryptedSummonerId).matchId); 
-                        setTimeout(() => {activeGames.delete(summoner.encryptedSummonerId)}, 60000); 
-
-                        //TODO: Add post game stats for {gameId}
-                    }
-                } 
-            })
-
-            (function(i){
-                setTimeout(function(){
-              }, 500 * i+1)
-             })(i);
+            }, i*1000);
         }
     }) 
 }
