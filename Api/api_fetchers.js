@@ -14,6 +14,31 @@ module.exports = {
               })
       },
 
+      getRanks: (team, callback) => {
+
+        let id1 = team[0].summonerId; 
+        let id2 = team[1].summonerId; 
+        let id3 = team[2].summonerId; 
+        let id4 = team[3].summonerId; 
+        let id5 = team[4].summonerId; 
+
+        axios.get(URL.basePath+URL.leagueBySummonerId+id1+"?api_key="+riotApiToken).then(function(p1) {     
+                axios.get(URL.basePath+URL.leagueBySummonerId+id2+"?api_key="+riotApiToken).then(function(p2) {     
+                        axios.get(URL.basePath+URL.leagueBySummonerId+id3+"?api_key="+riotApiToken).then(function(p3) {     
+                                axios.get(URL.basePath+URL.leagueBySummonerId+id4+"?api_key="+riotApiToken).then(function(p4) {     
+                                        axios.get(URL.basePath+URL.leagueBySummonerId+id5+"?api_key="+riotApiToken).then(function(p5) {   
+
+                                                let teamArr = [p1.data, p2.data, p3.data, p4.data, p5.data]
+
+                                                callback(teamArr); 
+                                        })
+                                })
+                        })
+                })
+        })
+
+      },
+
       fetchLeague: (summonerId, callback) => {
               axios.get(URL.basePath+URL.leagueBySummonerId+summonerId+"?api_key="+riotApiToken).then(function(response) {
                 callback(response); 

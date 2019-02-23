@@ -5,7 +5,7 @@ const bot = new Discord.Client();
 const URL = require("./Api/api_endpoints");
 const fs = require('fs');
 const LeagueDAO = require('./Database/db')
-const {fetchActiveMatch} = require('./Api/api_fetchers'); 
+const {fetchActiveMatch, getRanks} = require('./Api/api_fetchers'); 
 
 //Collections
 const commands = new Discord.Collection(); 
@@ -42,7 +42,7 @@ const users = [
 bot.on("ready", async () =>  {
     console.log(`${bot.user.username} er nå online`);
     const db = new LeagueDAO("./Database/summoners.db"); 
-    setInterval(() => { checkActiveGames(sendMessage, bot.channels.get("279995156503986176")) }, 20000); 
+    setInterval(() => { checkActiveGames(sendMessage, bot.channels.get("279995156503986176")) }, 10000); 
 })
 
 
@@ -72,17 +72,15 @@ bot.on("message", async message => {
 
 /* Helper functions */ 
 
-async function checkActiveGames(callback, channel) {
+function checkActiveGames(callback, channel) {
     const db = new LeagueDAO("./Database/summoners.db");
     db.getAllSummoners((summoners) => {
         for(let i = 0; i < summoners.length; i++) {
             let summoner = summoners[i]; 
-        
-            
-            setTimeout( function time() {
 
                 fetchActiveMatch(summoner.encryptedSummonerId, (response) => { 
                     console.log("Checking summoner ", i)
+                    console.log(response.status === 200 && (response.data.gameQueueConfigId === 420 || response.data.gameQueueConfigId === 440)); 
                     if(response.status === 200 && (response.data.gameQueueConfigId === 420 || response.data.gameQueueConfigId === 440)) {
     
                         if(!activeGames.has(summoner.encryptedSummonerId)) {
@@ -92,6 +90,7 @@ async function checkActiveGames(callback, channel) {
                         
                         let team1_id = response.data.participants[0].teamId;
                         for(p of response.data.participants) {
+                            p.apiUrl = URL.basePath + URL.leagueBySummonerId + "?api_key="+riotApiToken; 
                             if (p.teamId === team1_id) {
                                 team1.push(p); 
                             }
@@ -99,6 +98,8 @@ async function checkActiveGames(callback, channel) {
                                 team2.push(p); 
                             }
                         }
+
+
     
                         const spectatorData = {
                             team1: team1, 
@@ -111,9 +112,7 @@ async function checkActiveGames(callback, channel) {
                         console.log("ACTIVE!!!!")
                         console.log(activeGames.get(summoner.encryptedSummonerId).matchId);
     
-                        let embed = formatTeams(spectatorData); 
-    
-                        callback(embed, channel); 
+                        formatTeams(spectatorData, channel); 
                         
     
                     } else {
@@ -128,8 +127,6 @@ async function checkActiveGames(callback, channel) {
                         }
                     } 
                 })
-
-            }, i*1000);
         }
     }) 
 }
@@ -140,32 +137,56 @@ function sendMessage(embed, channel) {
     channel.send(embed)
 }
 
-function formatTeams(spectatorData) {
+function formatTeams(spectatorData, channel) {
 
-    console.log(spectatorData.playerSpectating.id); 
+
+    getRanks(spectatorData.team1, function(team1League) {
+        getRanks(spectatorData.team2, function(team2League) {
+
+    let team1 = spectatorData.team1; 
+    let team2 = spectatorData.team2; 
+
+    for(p of team1) {
+        p.rank = team1League[0][0].rank; 
+        p.tier = team1League[0][0].tier; 
+    }
+
+    for(p of team2) {
+        p.rank = team2League[0][0].rank; 
+        p.tier = team2League[0][0].tier; 
+    }
+
+
      let playerTeamId = getTeamId(spectatorData.team1, spectatorData.team2, spectatorData.playerSpectating);  
 
-     let enemyTeamObject = spectatorData.team1[0].teamId !== playerTeamId ? spectatorData.team1 : spectatorData.team2; 
-     let allyTeamObject = spectatorData.team1[0].teamId === playerTeamId ? spectatorData.team1 : spectatorData.team2; 
+     let enemyTeamObject = spectatorData.team1[0].teamId !== playerTeamId ? team1 : team2; 
+     let allyTeamObject = spectatorData.team1[0].teamId === playerTeamId ? team1 : team2; 
 
      let enemyTeam = ""; 
      let allyTeam = "";
 
+     let enemyTeamRank = ""; 
+     let allyTeamRank = ""; 
      for(player of enemyTeamObject) {
-        enemyTeam += player.summonerName+"\n"
+        enemyTeam += player.summonerName+"\n"; 
+        enemyTeamRank += player.tier + " " + player.rank + "\n"; 
      }
+
 
      for (player of allyTeamObject) {
          if(player.summonerId === spectatorData.playerSpectating.encryptedSummonerId) {
-            allyTeam += "**"+player.summonerName+"**\n"
+            allyTeam += "**"+player.summonerName+"**" +"\n"; 
          }
 
          else {
-            allyTeam += player.summonerName+"\n"
+            allyTeam += player.summonerName+"\n";
          }
-     }
 
-     let embed = {
+         allyTeamRank += player.tier + " " + player.rank + "\n"; 
+     }
+     
+
+     let embedAlly = {
          embed: {
             color: 3447003,
             author: "Test",
@@ -175,17 +196,35 @@ function formatTeams(spectatorData) {
                 name: "Your Team",
                 value: allyTeam,
                 inline: true
-            },
-            {
-                name: "Enemy Team",
-                value: enemyTeam, 
-                inline: true
+            }, {
+            name: "Rank",
+            value: allyTeamRank, 
+            inline: true
             }
         ]
      }
     }
 
-     return embed; 
+    let embedEnemy = {
+        embed: {
+           color: 10038562,
+           fields: [{
+               name: "Enemy Team",
+               value: enemyTeam,
+               inline: true
+           }, {
+           name: "Rank",
+           value: enemyTeamRank, 
+           inline: true
+           }
+       ]
+    }
+   }
+
+    sendMessage(embedAlly, channel);
+   sendMessage(embedEnemy, channel); 
+})
+})
 
 }
 
