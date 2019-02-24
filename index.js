@@ -7,7 +7,7 @@ const fs = require('fs');
 const LeagueDAO = require('./Database/db')
 const {fetchActiveMatch, getRanks, fetchPostGame} = require('./Api/api_fetchers'); 
 const constants = require('./Api/constants'); 
-
+const activeGameDelay = 20000; 
 //Collections
 const commands = new Discord.Collection(); 
 const cooldowns = new Discord.Collection(); 
@@ -44,7 +44,7 @@ const users = [
 bot.on("ready", async () =>  {
     console.log(`${bot.user.username} er nå online`);
     const db = new LeagueDAO("./Database/summoners.db"); 
-    setInterval(() => { checkActiveGames(sendMessage, bot.channels.get("279995156503986176")) }, 20000); 
+    setInterval(() => { checkActiveGames(sendMessage, bot.channels.get("279995156503986176")) }, activeGameDelay); 
 })
 
 
@@ -243,18 +243,19 @@ function formatTeams(spectatorData, channel) {
      let enemyTeamRank = ""; 
      let allyTeamRank = ""; 
      for(player of enemyTeamObject) {
-        enemyTeam += player.summonerName+"\n"; 
+        enemyTeam += player.summonerName+" ("+constants.getChampion(player.championId)+")\n";
         enemyTeamRank += player.tier + " " + player.rank + "\n"; 
      }
 
 
      for (player of allyTeamObject) {
+         console.log(player); 
          if(player.summonerId === spectatorData.playerSpectating.encryptedSummonerId) {
-            allyTeam += "**"+player.summonerName+"**" +"\n"; 
+            allyTeam += "**"+player.summonerName+"** (" + constants.getChampion(parseInt(player.championId))+")\n"; 
          }
 
          else {
-            allyTeam += player.summonerName+"\n";
+            allyTeam += player.summonerName+" ("+constants.getChampion(player.championId)+")\n";
          }
 
          allyTeamRank += player.tier + " " + player.rank + "\n"; 
