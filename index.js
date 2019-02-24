@@ -1,19 +1,21 @@
 const {prefix, token, riotApiToken} = require("./botconfig.json"); 
 const Discord = require("discord.js"); 
-const {RichEmbed} = require('Discord.js') 
+const {RichEmbed} = require('discord.js') 
 const bot = new Discord.Client();
 const URL = require("./Api/api_endpoints");
 const fs = require('fs');
 const LeagueDAO = require('./Database/db')
-const {fetchActiveMatch, getRanks} = require('./Api/api_fetchers'); 
+const {fetchActiveMatch, getRanks, fetchPostGame} = require('./Api/api_fetchers'); 
+const constants = require('./Api/constants'); 
 
 //Collections
 const commands = new Discord.Collection(); 
 const cooldowns = new Discord.Collection(); 
 const activeGames = new Discord.Collection(); 
+const postGameStatsList = new Discord.Collection(); 
+
 const commandFiles = fs.readdirSync('./Commands').filter(file => file.endsWith('.js')); 
 const announcementChannel = undefined; 
-
 bot.login(token); 
 
 
@@ -42,7 +44,7 @@ const users = [
 bot.on("ready", async () =>  {
     console.log(`${bot.user.username} er nå online`);
     const db = new LeagueDAO("./Database/summoners.db"); 
-    setInterval(() => { checkActiveGames(sendMessage, bot.channels.get("279995156503986176")) }, 10000); 
+    setInterval(() => { checkActiveGames(sendMessage, bot.channels.get("279995156503986176")) }, 20000); 
 })
 
 
@@ -75,22 +77,26 @@ bot.on("message", async message => {
 function checkActiveGames(callback, channel) {
     const db = new LeagueDAO("./Database/summoners.db");
     db.getAllSummoners((summoners) => {
+        let delay = summoners.length*1000; 
         for(let i = 0; i < summoners.length; i++) {
             let summoner = summoners[i]; 
 
+
+            setTimeout( function time() {
                 fetchActiveMatch(summoner.encryptedSummonerId, (response) => { 
                     console.log("Checking summoner ", i)
-                    console.log(response.status === 200 && (response.data.gameQueueConfigId === 420 || response.data.gameQueueConfigId === 440)); 
-                    if(response.status === 200 && (response.data.gameQueueConfigId === 420 || response.data.gameQueueConfigId === 440)) {
-    
-                        if(!activeGames.has(summoner.encryptedSummonerId)) {
-                        console.log(summoner.summonerName + " just went in a new game");
+                    let gameType = constants.gameType(response.data.gameQueueConfigId); 
+                    if(response.status === 200 && gameType !== "0") {
+
                         let team1 = []; 
                         let team2 = []; 
                         
                         let team1_id = response.data.participants[0].teamId;
                         for(p of response.data.participants) {
-                            p.apiUrl = URL.basePath + URL.leagueBySummonerId + "?api_key="+riotApiToken; 
+                            if(p.summonerId === summoner.encryptedSummonerId) {
+                                summoner.teamId = p.teamId; 
+                                console.log(summoner.summonerName + ":" + summoner.teamId)
+                            }
                             if (p.teamId === team1_id) {
                                 team1.push(p); 
                             }
@@ -100,18 +106,22 @@ function checkActiveGames(callback, channel) {
                         }
 
 
-    
+                        if(!activeGames.has(summoner.encryptedSummonerId)) {
                         const spectatorData = {
                             team1: team1, 
                             team2: team2, 
                             playerSpectating: summoner,
-                            matchId: response.data.gameId
+                            matchId: response.data.gameId, 
+                            teamId: summoner.teamId,
+                            gameType: gameType
                         }
     
                         activeGames.set(summoner.encryptedSummonerId, spectatorData); 
+                        postGameStatsList.set(spectatorData.matchId, summoner);
                         console.log("ACTIVE!!!!")
                         console.log(activeGames.get(summoner.encryptedSummonerId).matchId);
     
+                        console.log("Summoner team id: ", summoner.teamId)
                         formatTeams(spectatorData, channel); 
                         
     
@@ -120,20 +130,67 @@ function checkActiveGames(callback, channel) {
                     }
                     } else {
                         if(activeGames.has(summoner.encryptedSummonerId)) {
-                            console.log(summoner.summonerName + " just finished a game! Game id: ", activeGames.get(summoner.encryptedSummonerId).matchId); 
-                            setTimeout(() => {activeGames.delete(summoner.encryptedSummonerId)}, 60000); 
+                            let matchId = activeGames.get(summoner.encryptedSummonerId).matchId; 
+                            let teamId = activeGames.get(summoner.encryptedSummonerId).teamId; 
+                            let isActive = postGameStatsList.has(matchId); 
+                            console.log(summoner);
+                            setTimeout(() => {
+                                activeGames.delete(summoner.encryptedSummonerId)
+                                postGameStats(matchId, summoner, teamId, isActive, channel); 
+                            }, 60000); 
     
+                            postGameStatsList.delete(matchId); 
+                            console.log("Deleted..")
                             //TODO: Add post game stats for {gameId}
                         }
                     } 
                 })
+                
+            }, i*delay)
         }
     }) 
 }
 
+function postGameStats(matchId, summoner, teamId, isActive, channel) {
+
+    if(!isActive) {
+        console.log("Post game stats already handled")
+        return; 
+    }
+    fetchPostGame(matchId, (response) => {
+        let matchData = response.data; 
+        let summonerId = summoner.encryptedSummonerId; 
+
+        let player = undefined; 
+        for(p of matchData.participantIdentities) {
+            if(p.player.summonerId === summonerId) {
+                console.log("Found summoner id"); 
+                player = p.player; 
+                player.participantId = p.participantId; 
+                break; 
+            }
+        } 
+    
+        //Check if win
+
+        let win = false; 
+        for(t of matchData.teams) {
+            console.log("Summoner team id:", teamId)
+            if(t.teamId === teamId) {
+                if(t.win === 'Win') {
+                    win = true;
+                } 
+            }
+        }
+
+            sendMessage(summoner.summonerName + " ble nettopp ferdig med et game og " + (win ? "vant" : "tapte.. :("), channel); 
+
+    })
+
+}
+
 function sendMessage(embed, channel) {
     console.log("Sending..")
-    console.log(embed)
     channel.send(embed)
 }
 
@@ -145,15 +202,33 @@ function formatTeams(spectatorData, channel) {
 
     let team1 = spectatorData.team1; 
     let team2 = spectatorData.team2; 
+    for(const [i, p] of team1.entries()) {
 
-    for(p of team1) {
-        p.rank = team1League[0][0].rank; 
-        p.tier = team1League[0][0].tier; 
+        p.rank = "Unranked"; 
+        p.tier = ""; 
+
+        if(team1League[i][0] !== undefined) {
+
+            for(league of team1League[i]) {
+                if (league.queueType === "RANKED_SOLO_5x5") {
+                    p.rank = league.rank; 
+                    p.tier = league.tier;
+                }
+            } 
+        }
     }
 
-    for(p of team2) {
-        p.rank = team2League[0][0].rank; 
-        p.tier = team2League[0][0].tier; 
+    for(const [i, p] of team2.entries()) {
+
+        p.rank = "Unranked"; 
+        p.tier = ""; 
+
+        for(league of team2League[i]) {
+            if (league.queueType === "RANKED_SOLO_5x5") {
+                p.rank = league.rank; 
+                p.tier = league.tier;
+            }
+        } 
     }
 
 
@@ -191,7 +266,7 @@ function formatTeams(spectatorData, channel) {
             color: 3447003,
             author: "Test",
             title: "Live match information",
-            description: "Live match data for <@"+spectatorData.playerSpectating.id+"> as **" + spectatorData.playerSpectating.summonerName + "**",
+            description: "<@"+spectatorData.playerSpectating.id+"> / **" + spectatorData.playerSpectating.summonerName + "** gikk nettopp i et nytt game! (" + spectatorData.gameType + ")\nHer er lagene: ",
             fields: [{
                 name: "Your Team",
                 value: allyTeam,
@@ -221,7 +296,7 @@ function formatTeams(spectatorData, channel) {
     }
    }
 
-    sendMessage(embedAlly, channel);
+   sendMessage(embedAlly, channel);
    sendMessage(embedEnemy, channel); 
 })
 })
@@ -270,32 +345,3 @@ function checkCooldowns(command, message) {
 function timer(ms) {
     return new Promise(res => setTimeout(res, ms));
    }
-
-
-
-
-
-
-
-
-
-
-
-
-// Command stuff 0
-
-bot.on('message', message => {
-        if (message.content === '!test') {
-          const embed = new RichEmbed()
-            .setTitle('Test')
-            .setColor(0xFF0000)
-            .setDescription('Hello, this is a slick embed!');
-         
-            let user = bot.users.get(237187264424181760) 
-            message.channel.send("Test: " + user); 
-        }
-      });
-
-function createtUrl(endpoint, param) {
-    return URL.basePath+endpoint+param+"?api_key="+riotApiToken; 
-}

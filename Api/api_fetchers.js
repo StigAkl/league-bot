@@ -29,7 +29,6 @@ module.exports = {
                                         axios.get(URL.basePath+URL.leagueBySummonerId+id5+"?api_key="+riotApiToken).then(function(p5) {   
 
                                                 let teamArr = [p1.data, p2.data, p3.data, p4.data, p5.data]
-
                                                 callback(teamArr); 
                                         })
                                 })
@@ -48,12 +47,20 @@ module.exports = {
       },
 
       fetchActiveMatch: (summonerId, callback) => {
-              console.log(URL.basePath+URL.activeGameSpectator+summonerId+"?api_key="+riotApiToken)
         axios.get(URL.basePath+URL.activeGameSpectator+summonerId+"?api_key="+riotApiToken).then(function(response) { 
                 callback(response); 
         }).catch(error => {
                 callback(error.response); 
         })
+      },
+
+      fetchPostGame: (matchId, callback) => {
+        console.log("Fetching after-game stats...");
+        axios.get(URL.basePath+URL.matchByMatchId+matchId+"?api_key="+riotApiToken).then(function(response) {
+                callback(response); 
+        }).catch(error => {
+                console.log("Error fetching post stats: ", error) 
+        }) 
       },
 
       requestOk(status) {
