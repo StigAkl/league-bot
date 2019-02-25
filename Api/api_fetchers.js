@@ -14,7 +14,7 @@ module.exports = {
               })
       },
 
-      getRanks: (team, callback) => {
+      getRanks: (team, delay, callback) => {
 
         let id1 = team[0].summonerId; 
         let id2 = team[1].summonerId; 

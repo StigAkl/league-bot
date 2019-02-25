@@ -1,5 +1,7 @@
 const LeagueDAO = require('./../Database/db'); 
 const {fetchSummoner, fetchLeague, requestOk} = require('./../Api/api_fetchers'); 
+const {getRank} = require('./../Helpers/ranks')
+const constants = require('./../Helpers/constants')
 
 module.exports = {
     name: 'add',
@@ -17,7 +19,7 @@ module.exports = {
             if(requestOk(response.status)){
                 const summoner = response.data; 
                 summoner.author_id = message.author.id;  
-                summoner.tier = "Ingen rank"; 
+                summoner.tier = "null"; 
                 summoner.rank = "0"; 
 
                 fetchLeague(summoner.id, function(res) {
@@ -25,7 +27,7 @@ module.exports = {
                     
                     for(let i = 0; i < league.length; i++) {
                         let currentLeague = league[i]; 
-                        if(currentLeague.queueType === "RANKED_SOLO_5x5") {
+                        if(currentLeague.queueType === constants.SOLO_RANKED_TYPE) {
                             summoner.tier = currentLeague.tier; 
                             summoner.rank = getRank(currentLeague.rank); 
                             break; 
@@ -48,22 +50,6 @@ module.exports = {
             if(msg) {
                 message.channel.send(msg);
             }
-        }
-
-        function getRank(rank) {
-            if(rank === "I") {
-                return 1;
-            }
-
-            if(rank === "II") {
-                return 2; 
-            }
-
-            if(rank === "III") {
-                return 3; 
-            }
-
-            return 4; 
         }
     }
 }

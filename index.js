@@ -5,9 +5,16 @@ const bot = new Discord.Client();
 const URL = require("./Api/api_endpoints");
 const fs = require('fs');
 const LeagueDAO = require('./Database/db')
-const {fetchActiveMatch, getRanks, fetchPostGame} = require('./Api/api_fetchers'); 
-const constants = require('./Api/constants'); 
+const {fetchActiveMatch, getRanks, fetchPostGame, fetchLeague} = require('./Api/api_fetchers'); 
+const constants = require('./Helpers/constants'); 
+const {getRank, compareRanks, changeRankMessage} = require('./Helpers/ranks'); 
+
+//Interval delays
 const activeGameDelay = 20000; 
+const activeGameDelayPerTeamMember = 1000; //Not implemented yet
+const checkRanksDelay = 60*10*1000; 
+const checkRanksEachSummonerDelay = 2000; 
+
 //Collections
 const commands = new Discord.Collection(); 
 const cooldowns = new Discord.Collection(); 
@@ -15,7 +22,9 @@ const activeGames = new Discord.Collection();
 const postGameStatsList = new Discord.Collection(); 
 
 const commandFiles = fs.readdirSync('./Commands').filter(file => file.endsWith('.js')); 
-const announcementChannel = undefined; 
+const announcementChannel = "549629836478382091";
+
+//Login
 bot.login(token); 
 
 
@@ -25,26 +34,13 @@ for (const file of commandFiles) {
     commands.set(command.name, command); 
 }
 
-//Some test data
-const users = [
-{
-    summonerName: "ILoveDuskblade", 
-    encryptedSummonerId: "w3I-cV99TdsOpaX7Yrs6qjgHJLKfTRFrpBUiV9-Xkj8unG0", 
-    encryptedAccountId: "bByMXzzQFBcEVWFNKKm-dqVkOmMtkFW0lb1JC5oRou4KlrE", 
-},
-{
-    summonerName: "Zekinava",
-    encryptedSummonerId: "-BgMUiEPPenxsxzv3eSyZEIG_a2p1WR4eCkgtbfha50-_FM", 
-    encryptedAccountId: "QIF4jvo6rEeb7aIGnKwdn8v-IxkKKlw4CvAcsDNQuwIgqTQ"
-}
-]; 
-
 
 
 bot.on("ready", async () =>  {
     console.log(`${bot.user.username} er nå online`);
-    const db = new LeagueDAO("./Database/summoners.db"); 
-    setInterval(() => { checkActiveGames(sendMessage, bot.channels.get("279995156503986176")) }, activeGameDelay); 
+    //const db = new LeagueDAO("./Database/summoners.db"); 
+    setInterval(() => { checkRanks(bot.channels.get(announcementChannel))}, checkRanksDelay); 
+    setInterval(() => { checkActiveGames(sendMessage, bot.channels.get(announ)) }, activeGameDelay); 
 })
 
 
@@ -52,7 +48,7 @@ bot.on("ready", async () =>  {
 bot.on("message", async message => {
     if (!message.content.startsWith(prefix) || message.author.bot) return; 
 
-    const args = message.content.slice(prefix.length).split(/ +/);
+    const args = message.content.slice(prefix.length).split(/ +/); 
     const commandName = args.shift().toLowerCase(); 
     const command = commands.get(commandName); 
 
@@ -197,8 +193,8 @@ function sendMessage(embed, channel) {
 function formatTeams(spectatorData, channel) {
 
 
-    getRanks(spectatorData.team1, function(team1League) {
-        getRanks(spectatorData.team2, function(team2League) {
+    getRanks(spectatorData.team1, activeGameDelayPerTeamMember, function(team1League) {
+        getRanks(spectatorData.team2, activeGameDelayPerTeamMember, function(team2League) {
 
     let team1 = spectatorData.team1; 
     let team2 = spectatorData.team2; 
@@ -341,6 +337,86 @@ function checkCooldowns(command, message) {
         setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
         return false; 
     }
+}
+
+function checkRanks(channel) {
+    const db = new LeagueDAO("./Database/summoners.db");
+    db.getAllSummoners((summoners) => {
+        
+        //Loop through the summoners
+        (function theLoop (data, i) {
+            setTimeout(function () {
+              
+
+                let summoner = summoners[i-1]; 
+
+                fetchLeague(summoner.encryptedSummonerId, (response) => {
+
+                    
+                    if(response && response.status === 200) {
+                        
+                        let leagues = response.data;
+
+                        let oldRank = {
+                            tier: summoner.tier, 
+                            rank: summoner.rank
+                        }
+
+                        for(league of leagues) {
+                            if(league.queueType === constants.SOLO_RANKED_TYPE) {
+                                let newRank = {
+                                    tier: league.tier,
+                                    rank: getRank(league.rank)
+                                }
+
+                                console.log(compareRanks(oldRank, newRank));
+                                
+                                let rankChange = compareRanks(oldRank, newRank);
+
+                                if(rankChange !== 0) {
+                                    db.updateSummonerRank(summoner.id, newRank, (status) => { 
+                                        console.log("Status", status); 
+                                        let message = changeRankMessage(rankChange, newRank, summoner);  
+                                        sendMessage(message, channel)
+                                    })
+                                }
+                                break; 
+                            }
+                        }
+
+
+                    }  else {
+
+                        if(response) {
+                        console.error(response.status, "Error fetching league for: ", summoner);
+
+                        if(response.status === 401 || response.status === 403){
+                            console.error("Terminating.."); 
+                            process.exit(); 
+                        } 
+                    } else {
+
+                        try {
+                        console.error("Error, response is undefined at. Triggering error: ");
+                        console.error(response.status);  
+                        } catch(err) {
+                            console.log(err); 
+                        } finally {
+                            process.exit(); 
+                        }
+                    }
+                }
+
+                    if (--i) {    
+                        theLoop(data, i); 
+                      }
+                }); 
+
+            }, checkRanksEachSummonerDelay);
+          })(summoners, summoners.length);
+
+
+    })
 }
 
 function timer(ms) {

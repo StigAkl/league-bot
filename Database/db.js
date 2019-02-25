@@ -64,6 +64,20 @@ class LeagueDAO {
         this.db.close(); 
     }
 
+    updateSummonerRank(id, rank, callback) {
+        let sql = `UPDATE summoners SET tier='null', rank=${0} WHERE id=${id}`; 
+
+        console.log("Running db update")
+        this.db.run(sql, (err) => {
+            if(err) {
+                console.error("Error occured when updating rank in database for summoner", summoner); 
+                console.error(err); 
+            } else {
+                callback("Summoner updated!"); 
+            }
+        })
+    }
+
     removeSummoner(id, callback) {
         let sql = `
         DELETE FROM summoners WHERE id = ${id}
