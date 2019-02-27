@@ -10,7 +10,7 @@ const constants = require('./Helpers/constants');
 const {getRank, compareRanks, changeRankMessage} = require('./Helpers/ranks'); 
 
 //Interval delays
-const activeGameDelay = 20000; 
+const activeGameDelay = 60000; 
 const activeGameDelayPerTeamMember = 1000; //Not implemented yet
 const checkRanksDelay = 60*10*1000; 
 const checkRanksEachSummonerDelay = 2000; 
@@ -96,6 +96,7 @@ function checkActiveGames(callback, channel) {
                             if (p.teamId === team1_id) {
                                 team1.push(p); 
                             }
+
                             else {
                                 team2.push(p); 
                             }
@@ -133,7 +134,7 @@ function checkActiveGames(callback, channel) {
                             setTimeout(() => {
                                 activeGames.delete(summoner.encryptedSummonerId)
                                 postGameStats(matchId, summoner, teamId, isActive, channel); 
-                            }, 60000); 
+                            }, 120000); 
     
                             postGameStatsList.delete(matchId); 
                             console.log("Deleted..")
