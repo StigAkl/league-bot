@@ -10,6 +10,7 @@ module.exports = {
               axios.get(URL.basePath+URL.summonerByName+summonerName+"?api_key="+riotApiToken).then(function(response) {
                       callback(response); 
               }).catch(error => {
+                      console.error("Fetch summoner failed: ", error.response); 
                       callback(error.response); 
               })
       },
@@ -30,10 +31,20 @@ module.exports = {
 
                                                 let teamArr = [p1.data, p2.data, p3.data, p4.data, p5.data]
                                                 callback(teamArr); 
+                                        }).catch(error => {
+                                                console.error("Error fetching p5: ", error.response); 
                                         })
+                                }).catch(error => {
+                                        console.error("Error fetching p4: ", error.response); 
                                 })
+                        }).catch(error => {
+                                console.error("Error fetching p3: ", error.response); 
                         })
+                }).catch(error => {
+                        console.error("Error fetching p2: ", error.response); 
                 })
+        }).catch(error => {
+                console.error("Error fetching p1: ", error.response); 
         })
 
       },
@@ -42,6 +53,7 @@ module.exports = {
               axios.get(URL.basePath+URL.leagueBySummonerId+summonerId+"?api_key="+riotApiToken).then(function(response) {
                 callback(response); 
               }).catch(error => {
+                      console.error("Fetch league error:", error.response)
                       callback(error.response)
               })
       },
@@ -50,6 +62,7 @@ module.exports = {
         axios.get(URL.basePath+URL.activeGameSpectator+summonerId+"?api_key="+riotApiToken).then(function(response) { 
                 callback(response); 
         }).catch(error => {
+                console.error("Fetch active match error: ", error.response); 
                 callback(error.response); 
         })
       },
@@ -59,7 +72,7 @@ module.exports = {
         axios.get(URL.basePath+URL.matchByMatchId+matchId+"?api_key="+riotApiToken).then(function(response) {
                 callback(response); 
         }).catch(error => {
-                console.log("Error fetching post stats: ", error) 
+                console.error("Error fetching post stats: ", error) 
         }) 
       },
 
