@@ -53,7 +53,7 @@ module.exports = {
               axios.get(URL.basePath+URL.leagueBySummonerId+summonerId+"?api_key="+riotApiToken).then(function(response) {
                 callback(response); 
               }).catch(error => {
-                      console.error("Fetch league error:", error.response)
+                     // console.error("Fetch league error:", error.response)
                       callback(error.response)
               })
       },
