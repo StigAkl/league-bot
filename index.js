@@ -207,7 +207,7 @@ function formatTeams(spectatorData, channel) {
         if(team1League[i][0] !== undefined) {
 
             for(league of team1League[i]) {
-                if (league.queueType === "RANKED_SOLO_5x5") {
+                if (league.queueType === constants.SOLO_RANKED_TYPE) {
                     p.rank = league.rank; 
                     p.tier = league.tier;
                 }
@@ -221,7 +221,7 @@ function formatTeams(spectatorData, channel) {
         p.tier = ""; 
 
         for(league of team2League[i]) {
-            if (league.queueType === "RANKED_SOLO_5x5") {
+            if (league.queueType === constants.SOLO_RANKED_TYPE) {
                 p.rank = league.rank; 
                 p.tier = league.tier;
             }
@@ -369,14 +369,11 @@ function checkRanks(channel) {
                                     tier: league.tier,
                                     rank: getRank(league.rank)
                                 }
-
-                                console.log(compareRanks(oldRank, newRank));
                                 
                                 let rankChange = compareRanks(oldRank, newRank);
 
                                 if(rankChange !== 0) {
                                     db.updateSummonerRank(summoner.id, newRank, (status) => { 
-                                        console.log("Status", status); 
                                         let message = changeRankMessage(rankChange, newRank, summoner);  
                                         sendMessage(message, channel)
                                     })
