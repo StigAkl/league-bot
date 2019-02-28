@@ -70,7 +70,7 @@ class LeagueDAO {
         console.log("Running db update")
         this.db.run(sql, (err) => {
             if(err) {
-                console.error("Error occured when updating rank in database for summoner", summoner); 
+                console.error("Error occured when updating rank in database for summoner", id); 
                 console.error(err); 
             } else {
                 callback("Summoner updated!"); 
