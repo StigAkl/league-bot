@@ -241,7 +241,7 @@ function formatTeams(spectatorData, channel) {
      let allyTeamRank = ""; 
      for(player of enemyTeamObject) {
         enemyTeam += player.summonerName+" ("+constants.getChampion(player.championId)+")\n";
-        enemyTeamRank += player.tier + " " + player.rank + "\n"; 
+        enemyTeamRank += player.tier + " \t" + player.rank + "\n"; 
      }
 
 
@@ -286,7 +286,7 @@ function formatTeams(spectatorData, channel) {
                value: enemyTeam,
                inline: true
            }, {
-           name: "Rank",
+           name: "\tRank",
            value: enemyTeamRank, 
            inline: true
            }
