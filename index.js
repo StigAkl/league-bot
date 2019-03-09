@@ -39,7 +39,7 @@ for (const file of commandFiles) {
 bot.on("ready", async () =>  {
     console.log(`${bot.user.username} er nå online`);
     //const db = new LeagueDAO("./Database/summoners.db"); 
-   // setInterval(() => { checkRanks(bot.channels.get(announcementChannel))}, checkRanksDelay); 
+    setInterval(() => { checkRanks(bot.channels.get(announcementChannel))}, checkRanksDelay); 
     setInterval(() => { checkActiveGames(sendMessage, bot.channels.get(announcementChannel)) }, activeGameDelay); 
 })
 
