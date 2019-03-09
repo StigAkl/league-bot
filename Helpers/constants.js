@@ -199,6 +199,7 @@ module.exports = {
          case 517: return "Sylas"; break; 
          case 141: return "Kayn"; break; 
          case 518: return "Neeko"; break; 
+         case 145: return "Kai'Sa"; break; 
          default: return "Ukjent champ"; 
          }
    }
