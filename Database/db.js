@@ -65,8 +65,7 @@ class LeagueDAO {
     }
 
     updateSummonerRank(id, rank, callback) {
-        let sql = `UPDATE summoners SET tier='
-${rank.tier}', rank='${rank.rank}' WHERE id=${id}`; 
+        let sql = `UPDATE summoners SET tier='${rank.tier}', rank='${rank.rank}' WHERE id=${id}`; 
 
         console.log("Running db update")
         this.db.run(sql, (err) => {
