@@ -62,7 +62,7 @@ module.exports = {
         axios.get(URL.basePath+URL.activeGameSpectator+summonerId+"?api_key="+riotApiToken).then(function(response) { 
                 callback(response); 
         }).catch(error => {
-                console.error("Fetch active match error: ", error.response.status); 
+                callback(error.response)
         })
       },
 

@@ -4,6 +4,7 @@ const {RichEmbed} = require('discord.js')
 const bot = new Discord.Client();
 const URL = require("./Api/api_endpoints");
 const fs = require('fs');
+const xp = require("./Database/xp.json");
 const LeagueDAO = require('./Database/db')
 const {fetchActiveMatch, getRanks, fetchPostGame, fetchLeague} = require('./Api/api_fetchers'); 
 const constants = require('./Helpers/constants'); 
@@ -46,7 +47,37 @@ bot.on("ready", async () =>  {
 
 //Handle commands
 bot.on("message", async message => {
-    if (!message.content.startsWith(prefix) || message.author.bot) return; 
+
+    if(message.author.bot) return;
+
+    let authorId = message.author.id; 
+
+    if(!xp[message.author.id]) {
+        xp[authorId] = {
+            xp: 0,
+            level: 1
+        };
+    }
+
+    let xpEarned = Math.floor(Math.random() * 10) + 10 + xp[authorId].level;
+    xp[authorId].xp = xp[authorId].xp + xpEarned; 
+
+
+    let nextLevel = xp[authorId].level*10+((xp[authorId].level -1)*10*2); 
+    console.log("Needed for neext level:",nextLevel);
+    if(nextLevel <= xp[authorId].xp) {
+        xp[authorId].level = xp[authorId].level + 1
+        console.log("Level up?")
+        message.channel.send("Du gikk nettopp opp i level og er nå lvl " + xp[authorId].level + "!").then((msg) => {
+            msg.delete(5000); 
+        })
+    }
+
+    fs.writeFile("./Database/xp.json", JSON.stringify(xp), (error) => {
+        if(error) console.log(error); 
+    })
+
+    if (!message.content.startsWith(prefix)) return; 
 
     const args = message.content.slice(prefix.length).split(/ +/); 
     const commandName = args.shift().toLowerCase(); 
@@ -117,15 +148,16 @@ function checkActiveGames(callback, channel) {
                         postGameStatsList.set(spectatorData.matchId, summoner);
                         console.log("ACTIVE!!!!")
                         console.log(activeGames.get(summoner.encryptedSummonerId).matchId);
-    
-                        console.log("Summoner team id: ", summoner.teamId)
                         formatTeams(spectatorData, channel); 
                         
     
                     } else {
                         console.log("Game is already tracked"); 
                     }
+
                     } else {
+                        console.log("KAKKAKAAKAKAKAKAKAKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK")
+                        console.log("FINISHED GAME?ASDFLØKDSFKØFKDASKFØLSDKFØLADSKLFDSAKØLFASKØLFKASDØLFK?");
                         if(activeGames.has(summoner.encryptedSummonerId)) {
                             let matchId = activeGames.get(summoner.encryptedSummonerId).matchId; 
                             let teamId = activeGames.get(summoner.encryptedSummonerId).teamId; 
@@ -149,7 +181,7 @@ function checkActiveGames(callback, channel) {
 }
 
 function postGameStats(matchId, summoner, teamId, isActive, channel) {
-
+    console.log("POSTGAME*******************************************************")
     if(!isActive) {
         console.log("Post game stats already handled")
         return; 
@@ -246,7 +278,6 @@ function formatTeams(spectatorData, channel) {
 
 
      for (player of allyTeamObject) {
-         console.log(player); 
          if(player.summonerId === spectatorData.playerSpectating.encryptedSummonerId) {
             allyTeam += "**"+player.summonerName+"** (" + constants.getChampion(parseInt(player.championId))+")\n"; 
          }

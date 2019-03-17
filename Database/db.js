@@ -3,12 +3,12 @@ const sqlite3 = require('sqlite3');
 class LeagueDAO {
     constructor(dbFilePath) {
 
-        console.log("Connecting to database..")
+        //console.log("Connecting to database..")
         this.db = new sqlite3.Database(dbFilePath, (error) => {
             if(error) {
                 console.log("Could not connect to database", error)
             } else {
-                console.log("Connected to database")
+                //console.log("Connected to database")
             }
         })
     }
