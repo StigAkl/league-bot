@@ -45,6 +45,12 @@ bot.on("ready", async () =>  {
 })
 
 
+//Handle errors
+client.on("error", error => {
+    console.error('Error event:\n' + JSON.stringify(error));
+  });
+
+
 //Handle commands
 bot.on("message", async message => {
 
@@ -58,6 +64,7 @@ bot.on("message", async message => {
             level: 1
         };
     }
+    
 
     let xpEarned = Math.floor(Math.random() * 10) + 10 + xp[authorId].level;
     xp[authorId].xp = xp[authorId].xp + xpEarned; 
