@@ -46,7 +46,7 @@ bot.on("ready", async () =>  {
 
 
 //Handle errors
-client.on("error", error => {
+bot.on("error", error => {
     console.error('Error event:\n' + JSON.stringify(error));
   });
 
