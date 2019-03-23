@@ -1,6 +1,6 @@
 const {prefix, token, riotApiToken} = require("./botconfig.json"); 
-const Discord = require("discord.js"); 
-const {RichEmbed} = require('discord.js') 
+const Discord = require("Discord.js"); 
+const {RichEmbed} = require('iscord.js') 
 const bot = new Discord.Client();
 const URL = require("./Api/api_endpoints");
 const fs = require('fs');
@@ -28,7 +28,7 @@ const announcementChannel = "549629836478382091";
 //Login
 bot.login(token); 
 
-i
+
 //Fetch commands
 for (const file of commandFiles) {
     const command = require(`./Commands/${file}`); 
@@ -56,33 +56,33 @@ bot.on("message", async message => {
 
     if(message.author.bot) return;
 
-    // let authorId = message.author.id; 
+    let authorId = message.author.id; 
 
-    // if(!xp[message.author.id]) {
-    //     xp[authorId] = {
-    //         xp: 0,
-    //         level: 1
-    //     };
-    // }
+    if(!xp[message.author.id]) {
+        xp[authorId] = {
+            xp: 0,
+            level: 1
+        };
+    }
     
 
-    // let xpEarned = Math.floor(Math.random() * 10) + 10 + xp[authorId].level;
-    // xp[authorId].xp = xp[authorId].xp + xpEarned; 
+    let xpEarned = Math.floor(Math.random() * 10) + 10 + xp[authorId].level;
+    xp[authorId].xp = xp[authorId].xp + xpEarned; 
 
 
-    // let nextLevel = xp[authorId].level*10+((xp[authorId].level -1)*10*2); 
-    // console.log("Needed for neext level:",nextLevel);
-    // if(nextLevel <= xp[authorId].xp) {
-    //     xp[authorId].level = xp[authorId].level + 1
-    //     console.log("Level up?")
-    //     message.channel.send("Du gikk nettopp opp i level og er nå lvl " + xp[authorId].level + "!").then((msg) => {
-    //         msg.delete(5000); 
-    //     })
-    // }
+    let nextLevel = xp[authorId].level*10+((xp[authorId].level -1)*10*2); 
+    console.log("Needed for neext level:",nextLevel);
+    if(nextLevel <= xp[authorId].xp) {
+        xp[authorId].level = xp[authorId].level + 1
+        console.log("Level up?")
+        message.channel.send("Du gikk nettopp opp i level og er nå lvl " + xp[authorId].level + "!").then((msg) => {
+            msg.delete(5000); 
+        })
+    }
 
-    // fs.writeFile("./Database/xp.json", JSON.stringify(xp), (error) => {
-    //     if(error) console.log(error); 
-    // })
+    fs.writeFile("./Database/xp.json", JSON.stringify(xp), (error) => {
+        if(error) console.log(error); 
+    })
 
     if (!message.content.startsWith(prefix)) return; 
 
