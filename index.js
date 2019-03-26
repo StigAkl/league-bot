@@ -1,5 +1,5 @@
 const {prefix, token, riotApiToken} = require("./botconfig.json"); 
-const Discord = require("Discord.js"); 
+const Discord = require("discord.js"); 
 const {RichEmbed} = require('discord.js') 
 const bot = new Discord.Client();
 const URL = require("./Api/api_endpoints");
