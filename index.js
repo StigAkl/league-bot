@@ -1,17 +1,18 @@
 const {prefix, token, riotApiToken} = require("./botconfig.json"); 
 const Discord = require("Discord.js"); 
-const {RichEmbed} = require('iscord.js') 
+const {RichEmbed} = require('discord.js') 
 const bot = new Discord.Client();
 const URL = require("./Api/api_endpoints");
 const fs = require('fs');
 const xp = require("./Database/xp.json");
+const eveCounter = require('./Database/eve.json');
 const LeagueDAO = require('./Database/db')
 const {fetchActiveMatch, getRanks, fetchPostGame, fetchLeague} = require('./Api/api_fetchers'); 
 const constants = require('./Helpers/constants'); 
 const {getRank, compareRanks, changeRankMessage} = require('./Helpers/ranks'); 
 
 //Interval delays
-const activeGameDelay = 60000; 
+const activeGameDelay = 6000; 
 const activeGameDelayPerTeamMember = 1000; //Not implemented yet
 const checkRanksDelay = 60*10*1000; 
 const checkRanksEachSummonerDelay = 2000; 
@@ -130,6 +131,23 @@ function checkActiveGames(callback, channel) {
                             if(p.summonerId === summoner.encryptedSummonerId) {
                                 summoner.teamId = p.teamId; 
                                 console.log(summoner.summonerName + ":" + summoner.teamId)
+                            }
+
+                            if(summoner.id === eveCounter.id) {
+                                console.log("EVECOUNTER!"); 
+
+                                if(p.summonerName === summoner.summonerName) {
+                                    if(constants.getChampion(p.championId) === "Evelynn") {
+                                        console.log("And you are playing evelynn :))");
+                                        eveCounter.counter += 1; 
+                                        fs.writeFile("./Database/eve.json", JSON.stringify(eveCounter), (error) => {
+                                            if(error) console.log("Error writing to eve.json"); 
+                                        })
+                                    } else {
+                                        console.log("Not playing eve :/");
+                                    }
+                                }
+
                             }
                             if (p.teamId === team1_id) {
                                 team1.push(p); 
