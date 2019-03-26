@@ -136,11 +136,11 @@ function checkActiveGames(callback, channel) {
                             if(summoner.id === eveCounter.id) {
                                 console.log("EVECOUNTER!"); 
 
-                                if(p.summonerName === summoner.summonerName) {
+                                if(p.summonerName === eveCounter.summonerName) {
                                     if(constants.getChampion(p.championId) === "Evelynn") {
                                         console.log("And you are playing evelynn :))");
-                                        eveCounter.counter += 1; 
-                                        sendMessage("Antall eve games: " + eveCounter.counter + " / " + eveCounter.goal, channel);
+                                        eveCounter.counter = eveCounter + 1; 
+                                        sendMessage("Antall eve games: " + eveCounter.counter, channel);
                                         fs.writeFile("./Database/eve.json", JSON.stringify(eveCounter), (error) => {
                                             if(error) console.log("Error writing to eve.json"); 
                                         })
