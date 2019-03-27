@@ -168,6 +168,8 @@ function checkActiveGames(callback, channel) {
                                     fs.writeFile("./Database/eve.json", JSON.stringify(eveCounter), (error) => {
                                         if(error) console.log("Error writing to eve.json"); 
                                     })
+
+                                    break; 
                                 } else {
                                     console.log("Not playing eve :/");
                                 }
