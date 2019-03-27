@@ -132,6 +132,11 @@ function checkActiveGames(callback, channel) {
                                 summoner.teamId = p.teamId; 
                                 console.log(summoner.summonerName + ":" + summoner.teamId)
                             }
+
+                            if(summoner.id === eveCounter.id) {
+                                console.log("EVECOUNTER!"); 
+
+                            }
                             if (p.teamId === team1_id) {
                                 team1.push(p); 
                             }
@@ -150,6 +155,23 @@ function checkActiveGames(callback, channel) {
                             matchId: response.data.gameId, 
                             teamId: summoner.teamId,
                             gameType: gameType
+                        }
+
+
+
+                    for(p of response.data.participants) {
+                            if(p.summonerName === eveCounter.summonerName) {
+                                if(constants.getChampion(p.championId) === "Evelynn") {
+                                    console.log("And you are playing evelynn :))");
+                                    eveCounter.counter = eveCounter + 1; 
+                                    sendMessage("Antall eve games: " + eveCounter.counter, channel);
+                                    fs.writeFile("./Database/eve.json", JSON.stringify(eveCounter), (error) => {
+                                        if(error) console.log("Error writing to eve.json"); 
+                                    })
+                                } else {
+                                    console.log("Not playing eve :/");
+                                }
+                            }
                         }
     
                         activeGames.set(summoner.encryptedSummonerId, spectatorData); 
