@@ -71,14 +71,14 @@ bot.on("message", async message => {
     xp[authorId].xp = xp[authorId].xp + xpEarned; 
 
 
-    let nextLevel = xp[authorId].level*10+((xp[authorId].level -1)*10*2); 
+    let nextLevel = xp[authorId].level*10+((xp[authorId].level)*10*2); 
     console.log("Needed for neext level:",nextLevel);
     if(nextLevel <= xp[authorId].xp) {
         xp[authorId].level = xp[authorId].level + 1
         console.log("Level up?")
-        message.channel.send("Du gikk nettopp opp i level og er nå lvl " + xp[authorId].level + "!").then((msg) => {
-            msg.delete(5000); 
-        })
+        // message.channel.send("Du gikk nettopp opp i level og er nå lvl " + xp[authorId].level + "!").then((msg) => {
+        //     msg.delete(5000); 
+        // })
     }
 
     fs.writeFile("./Database/xp.json", JSON.stringify(xp), (error) => {
@@ -162,13 +162,11 @@ function checkActiveGames(callback, channel) {
                     for(p of response.data.participants) {
                             if(p.summonerName === eveCounter.summonerName) {
                                 if(constants.getChampion(p.championId) === "Evelynn") {
-                                    console.log("And you are playing evelynn :))");
-                                    eveCounter.counter = eveCounter + 1; 
-                                    sendMessage("Antall eve games: " + eveCounter.counter, channel);
+                                    eveCounter.counter = eveCounter.counter + 1; 
                                     fs.writeFile("./Database/eve.json", JSON.stringify(eveCounter), (error) => {
                                         if(error) console.log("Error writing to eve.json"); 
                                     })
-
+                                    
                                     break; 
                                 } else {
                                     console.log("Not playing eve :/");
