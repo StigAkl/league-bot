@@ -133,10 +133,6 @@ function checkActiveGames(callback, channel) {
                                 console.log(summoner.summonerName + ":" + summoner.teamId)
                             }
 
-                            if(summoner.id === eveCounter.id) {
-                                console.log("EVECOUNTER!"); 
-
-                            }
                             if (p.teamId === team1_id) {
                                 team1.push(p); 
                             }
@@ -176,8 +172,8 @@ function checkActiveGames(callback, channel) {
     
                         activeGames.set(summoner.encryptedSummonerId, spectatorData); 
                         postGameStatsList.set(spectatorData.matchId, summoner);
-                        console.log("ACTIVE!!!!")
-                        console.log(activeGames.get(summoner.encryptedSummonerId).matchId);
+                        //console.log("ACTIVE!!!!")
+                        //console.log(activeGames.get(summoner.encryptedSummonerId).matchId);
                         formatTeams(spectatorData, channel); 
                         
     
@@ -186,13 +182,12 @@ function checkActiveGames(callback, channel) {
                     }
 
                     } else {
-                        console.log("KAKKAKAAKAKAKAKAKAKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK")
-                        console.log("FINISHED GAME?ASDFLØKDSFKØFKDASKFØLSDKFØLADSKLFDSAKØLFASKØLFKASDØLFK?");
+                        console.log("GAME FINISHED");
                         if(activeGames.has(summoner.encryptedSummonerId)) {
                             let matchId = activeGames.get(summoner.encryptedSummonerId).matchId; 
                             let teamId = activeGames.get(summoner.encryptedSummonerId).teamId; 
                             let isActive = postGameStatsList.has(matchId); 
-                            console.log(summoner);
+                            //console.log(summoner);
                             setTimeout(() => {
                                 activeGames.delete(summoner.encryptedSummonerId)
                                 postGameStats(matchId, summoner, teamId, isActive, channel); 
@@ -213,7 +208,7 @@ function checkActiveGames(callback, channel) {
 function postGameStats(matchId, summoner, teamId, isActive, channel) {
     console.log("POSTGAME*******************************************************")
     if(!isActive) {
-        console.log("Post game stats already handled")
+        console.error("Post game stats already handled")
         return; 
     }
     fetchPostGame(matchId, (response) => {
@@ -242,7 +237,7 @@ function postGameStats(matchId, summoner, teamId, isActive, channel) {
             }
         }
 
-            sendMessage(summoner.summonerName + " ble nettopp ferdig med et game og " + (win ? "vant" : "tapte.. :("), channel); 
+            sendMessage(summoner.summonerName + " ble nettopp ferdig med et game og " + (win ? "vant!" : "tapte.. :("), channel); 
 
     })
 
