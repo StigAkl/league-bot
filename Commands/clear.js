@@ -22,8 +22,8 @@ module.exports = {
                            msg.delete(3000); 
                        });
                    })
+                }
             }
-}
-}
+        }
     }
 }
