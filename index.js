@@ -156,7 +156,7 @@ function checkActiveGames(callback, channel) {
 
 
                     for(p of response.data.participants) {
-                            if(p.summonerName === eveCounter.summonerName) {
+                            if(p.summonerName === eveCounter.summonerName && summoner.summonerName === eveCounter.summonerName) {
                                 if(constants.getChampion(p.championId) === "Evelynn") {
                                     eveCounter.counter = eveCounter.counter + 1; 
                                     fs.writeFile("./Database/eve.json", JSON.stringify(eveCounter), (error) => {
