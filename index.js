@@ -6,7 +6,7 @@ const URL = require("./Api/api_endpoints");
 const fs = require('fs');
 const xp = require("./Database/xp.json");
 const eveCounter = require('./Database/eve.json');
-const LeagueDAO = require('./Database/db')
+const LeagueDAO = require('./Database/db');
 const {fetchActiveMatch, getRanks, fetchPostGame, fetchLeague} = require('./Api/api_fetchers'); 
 const constants = require('./Helpers/constants'); 
 const {getRank, compareRanks, changeRankMessage} = require('./Helpers/ranks'); 
@@ -23,7 +23,7 @@ const cooldowns = new Discord.Collection();
 const activeGames = new Discord.Collection(); 
 const postGameStatsList = new Discord.Collection(); 
 
-const commandFiles = fs.readdirSync('./Commands').filter(file => file.endsWith('.js')); 
+const commandFiles = fs.readdirSync("./Commands").filter(file => file.endsWith(".js")); 
 const announcementChannel = "549629836478382091";
 
 //Login
@@ -53,7 +53,7 @@ bot.on("error", error => {
 
 
 //Handle commands
-bot.on("message", async message => {
+bot.on("message", async (message) => {
 
     if(message.author.bot) return;
 
@@ -96,7 +96,7 @@ bot.on("message", async message => {
         return; 
     }
 
-   if(checkCooldowns(command, message)) return; 
+   if(checkCooldowns(command, message)) { return }; 
 
     try {
         command.execute(message, args); 
@@ -127,7 +127,7 @@ function checkActiveGames(callback, channel) {
                         let team2 = []; 
                         
                         let team1_id = response.data.participants[0].teamId;
-                        for(p of response.data.participants) {
+                        for(let p of response.data.participants) {
                             if(p.summonerId === summoner.encryptedSummonerId) {
                                 summoner.teamId = p.teamId; 
                                 console.log(summoner.summonerName + ":" + summoner.teamId)

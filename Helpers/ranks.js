@@ -68,7 +68,7 @@ module.exports = {
     }
 },
 
-    getRank: function (rank) {
+    getRank(rank) {
         if(rank === "I") {
             return 1;
         }

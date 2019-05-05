@@ -8,7 +8,7 @@ module.exports = {
             return ; 
         } else {
         if(args.length === 0) {
-            message.channel.send("Bruk: !clear <antall>")
+            message.channel.send("Bruk: !clear <antall>");
         } else {
             if(isNaN(args[0])) {
                 message.channel.send("Ugyldig antall meldinger");

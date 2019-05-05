@@ -43,7 +43,7 @@ class LeagueDAO {
         this.db.get("SELECT * FROM summoners WHERE id=?", summoner.author_id, (err, row) => {
             let message = "";
             if(err) {
-                message = "Det har skjedd en feil med databasen.. :/ "
+                message = "Det har skjedd en feil med databasen.. :/ ";
             } else {
                 if(row) {
                     message = "Følgende bruker er allerede registrert på deg: " + row.summonerName; 
@@ -101,7 +101,7 @@ class LeagueDAO {
                     callback(rows); 
                 }
             }
-        })
+        });
     }
 }
 
