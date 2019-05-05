@@ -1,7 +1,7 @@
 const LeagueDAO = require("./../Database/db"); 
 const {fetchSummoner, fetchLeague, requestOk} = require("./../Api/api_fetchers"); 
-const {getRank} = require("./../Helpers/ranks")
-const constants = require("./../Helpers/constants")
+const {getRank} = require("./../Helpers/ranks");
+const constants = require("./../Helpers/constants");
 
 module.exports = {
     name: "add",
@@ -39,7 +39,7 @@ module.exports = {
 
             } else {
                 if(response.data.status.status_code === 404) {
-                    callback("Kunne ikke finne noen summoners med dette navnet. Sjekk at du skrev inn riktig navn")
+                    callback("Kunne ikke finne noen summoners med dette navnet. Sjekk at du skrev inn riktig navn");
                 } else {
                     callback("Status: " + response.data.status.status_code + " " + response.data.status.message); 
                 }
