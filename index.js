@@ -55,7 +55,7 @@ bot.on("error", error => {
 //Handle commands
 bot.on("message", async (message) => {
 
-    if(message.author.bot) return;
+    if(message.author.bot) { return };
 
     let authorId = message.author.id; 
 
@@ -119,21 +119,21 @@ function checkActiveGames(callback, channel) {
 
             setTimeout( function time() {
                 fetchActiveMatch(summoner.encryptedSummonerId, (response) => { 
-                    console.log("Checking summoner ", i)
+                    console.log("Checking summoner ", i);
                     let gameType = constants.gameType(response.data.gameQueueConfigId); 
                     if(response.status === 200 && gameType !== "0") {
 
                         let team1 = []; 
                         let team2 = []; 
                         
-                        let team1_id = response.data.participants[0].teamId;
+                        let team1Id = response.data.participants[0].teamId;
                         for(let p of response.data.participants) {
                             if(p.summonerId === summoner.encryptedSummonerId) {
                                 summoner.teamId = p.teamId; 
-                                console.log(summoner.summonerName + ":" + summoner.teamId)
+                                console.log(summoner.summonerName + ":" + summoner.teamId);
                             }
 
-                            if (p.teamId === team1_id) {
+                            if (p.teamId === team1Id) {
                                 team1.push(p); 
                             }
 
@@ -155,7 +155,7 @@ function checkActiveGames(callback, channel) {
 
 
 
-                    for(p of response.data.participants) {
+                    for(let p of response.data.participants) {
                             if(p.summonerName === eveCounter.summonerName && summoner.summonerName === eveCounter.summonerName) {
                                 if(constants.getChampion(p.championId) === "Evelynn") {
                                     eveCounter.counter = eveCounter.counter + 1; 
@@ -194,7 +194,7 @@ function checkActiveGames(callback, channel) {
                             }, 120000); 
     
                             postGameStatsList.delete(matchId); 
-                            console.log("Deleted..")
+                            console.log("Deleted..");
                             //TODO: Add post game stats for {gameId}
                         }
                     } 
@@ -206,17 +206,17 @@ function checkActiveGames(callback, channel) {
 }
 
 function postGameStats(matchId, summoner, teamId, isActive, channel) {
-    console.log("POSTGAME*******************************************************")
+    console.log("POSTGAME*******************************************************");
     if(!isActive) {
-        console.error("Post game stats already handled")
+        console.error("Post game stats already handled");
         return; 
     }
     fetchPostGame(matchId, (response) => {
         let matchData = response.data; 
         let summonerId = summoner.encryptedSummonerId; 
 
-        let player = undefined; 
-        for(p of matchData.participantIdentities) {
+        let player = ""; 
+        for(let p of matchData.participantIdentities) {
             if(p.player.summonerId === summonerId) {
                 console.log("Found summoner id"); 
                 player = p.player; 

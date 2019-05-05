@@ -1,6 +1,6 @@
 module.exports = {
-    name: 'clear',
-    description: 'Clear messages',
+    name: "clear",
+    description: "Clear messages",
     cooldown: 1,
     async execute(message, args) {
         

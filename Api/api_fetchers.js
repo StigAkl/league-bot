@@ -1,6 +1,6 @@
 const URL = require("./api_endpoints"); 
-const axios = require('axios');
-const {riotApiToken} = require('./../botconfig.json')
+const axios = require("axios");
+const {riotApiToken} = require("./../botconfig.json");
 
 
 module.exports = {

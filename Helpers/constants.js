@@ -1,5 +1,5 @@
 module.exports = {
-   gameType: function (gameQueueConfigId) {
+   gameType(gameQueueConfigId) {
       let gameMode = ""; 
       switch(gameQueueConfigId) {
          case 75: 

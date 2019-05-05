@@ -89,7 +89,7 @@ class LeagueDAO {
             } else {
                 callback("Ingen league kontoer er nå knyttet til deg")
             }
-        })
+        });
 
         this.db.close(); 
     }
