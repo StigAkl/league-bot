@@ -91,10 +91,10 @@ module.exports = {
             message = "```yaml\n" + summoner.summonerName + " got promoted to " + newRank.tier + " " + newRank.rank + "!" + "\n``` :smile:"; 
         } else {
             if(rankChange === -1) {
-                message = "```diff\n-" +summoner.summonerName + " got demoted to " + newRank.tier + " " + newRank.rank + " ``` :cry:" ; ; 
+                message = "```diff\n-" +summoner.summonerName + " got demoted to " + newRank.tier + " " + newRank.rank + " ``` :cry:" ;
             } else {
                 if (rankChange === 2) {
-                    message = "```fix\n" +summoner.summonerName + " just finished the placement series and got placed in " + newRank.tier + " " + newRank.rank + ". Good luck!"+ "\n``` :smile:"; ; 
+                    message = "```fix\n" +summoner.summonerName + " just finished the placement series and got placed in " + newRank.tier + " " + newRank.rank + ". Good luck!"+ "\n``` :smile:"; 
                 }
             }
         }

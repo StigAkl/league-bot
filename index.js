@@ -96,7 +96,7 @@ bot.on("message", async (message) => {
         return; 
     }
 
-   if(checkCooldowns(command, message)) { return }; 
+   if(checkCooldowns(command, message)) { return } 
 
     try {
         command.execute(message, args); 
