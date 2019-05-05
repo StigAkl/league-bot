@@ -1,15 +1,15 @@
 const {prefix, token, riotApiToken} = require("./botconfig.json"); 
 const Discord = require("discord.js"); 
-const {RichEmbed} = require('discord.js') 
+const {RichEmbed} = require("discord.js"); 
 const bot = new Discord.Client();
 const URL = require("./Api/api_endpoints");
-const fs = require('fs');
+const fs = require("fs");
 const xp = require("./Database/xp.json");
-const eveCounter = require('./Database/eve.json');
-const LeagueDAO = require('./Database/db');
-const {fetchActiveMatch, getRanks, fetchPostGame, fetchLeague} = require('./Api/api_fetchers'); 
-const constants = require('./Helpers/constants'); 
-const {getRank, compareRanks, changeRankMessage} = require('./Helpers/ranks'); 
+const eveCounter = require("./Database/eve.json");
+const LeagueDAO = require("./Database/db");
+const {fetchActiveMatch, getRanks, fetchPostGame, fetchLeague} = require("./Api/api_fetchers"); 
+const constants = require("./Helpers/constants"); 
+const {getRank, compareRanks, changeRankMessage} = require("./Helpers/ranks"); 
 
 //Interval delays
 const activeGameDelay = 60000; 
@@ -43,7 +43,7 @@ bot.on("ready", async () =>  {
     //const db = new LeagueDAO("./Database/summoners.db"); 
     setInterval(() => { checkRanks(bot.channels.get(announcementChannel))}, checkRanksDelay); 
     setInterval(() => { checkActiveGames(sendMessage, bot.channels.get(announcementChannel)) }, activeGameDelay); 
-})
+});
 
 
 //Handle errors
@@ -102,7 +102,7 @@ bot.on("message", async (message) => {
         command.execute(message, args); 
     } catch(error) {
         console.error(error); 
-        message.reply('Det oppstod en feil under utførelsen av kommandoen, prøv igjen senere!'); 
+        message.reply("Det oppstod en feil under utførelsen av kommandoen, prøv igjen senere!"); 
     }
 })
 

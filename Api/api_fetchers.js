@@ -29,7 +29,7 @@ module.exports = {
                                 axios.get(URL.basePath+URL.leagueBySummonerId+id4+"?api_key="+riotApiToken).then(function(p4) {     
                                         axios.get(URL.basePath+URL.leagueBySummonerId+id5+"?api_key="+riotApiToken).then(function(p5) {   
 
-                                                let teamArr = [p1.data, p2.data, p3.data, p4.data, p5.data]
+                                                let teamArr = [p1.data, p2.data, p3.data, p4.data, p5.data];
                                                 callback(teamArr); 
                                         }).catch(error => {
                                                 console.error("Error fetching p5: ", error.response); 
@@ -62,7 +62,7 @@ module.exports = {
         axios.get(URL.basePath+URL.activeGameSpectator+summonerId+"?api_key="+riotApiToken).then(function(response) { 
                 callback(response); 
         }).catch(error => {
-                callback(error.response)
+                callback(error.response);
         })
       },
 
@@ -82,4 +82,4 @@ module.exports = {
                   return false; 
               }
       }
-}
+};
