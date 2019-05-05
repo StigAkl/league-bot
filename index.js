@@ -244,8 +244,8 @@ function postGameStats(matchId, summoner, teamId, isActive, channel) {
 }
 
 function sendMessage(embed, channel) {
-    console.log("Sending..")
-    channel.send(embed)
+    console.log("Sending..");
+    channel.send(embed);
 }
 
 function formatTeams(spectatorData, channel) {
@@ -279,7 +279,7 @@ function formatTeams(spectatorData, channel) {
 
         for(league of team2League[i]) {
             if (league.queueType === constants.SOLO_RANKED_TYPE) {
-                p.rank = league.rank; 
+                p.rank = league.rank;
                 p.tier = league.tier;
             }
         } 
@@ -296,7 +296,7 @@ function formatTeams(spectatorData, channel) {
 
      let enemyTeamRank = ""; 
      let allyTeamRank = ""; 
-     for(player of enemyTeamObject) {
+     for(let player of enemyTeamObject) {
         enemyTeam += player.summonerName+" ("+constants.getChampion(player.championId)+")\n";
         enemyTeamRank += player.tier + " \t" + player.rank + "\n"; 
      }
