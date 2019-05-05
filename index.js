@@ -41,13 +41,13 @@ for (const file of commandFiles) {
 bot.on("ready", async () =>  {
     console.log(`${bot.user.username} er nå online`);
     //const db = new LeagueDAO("./Database/summoners.db"); 
-    setInterval(() => { checkRanks(bot.channels.get(announcementChannel))}, checkRanksDelay); 
-    setInterval(() => { checkActiveGames(sendMessage, bot.channels.get(announcementChannel)) }, activeGameDelay); 
+    setInterval(() => { checkRanks(bot.channels.get(announcementChannel));}, checkRanksDelay); 
+    setInterval(() => { checkActiveGames(sendMessage, bot.channels.get(announcementChannel)); }, activeGameDelay); 
 });
 
 
 //Handle errors
-bot.on("error", error => {
+bot.on("error", (error) => {
     console.error('Error event:\n' + JSON.stringify(error));
   });
 
@@ -228,7 +228,7 @@ function postGameStats(matchId, summoner, teamId, isActive, channel) {
         //Check if win
 
         let win = false; 
-        for(t of matchData.teams) {
+        for(let t of matchData.teams) {
             console.log("Summoner team id:", teamId)
             if(t.teamId === teamId) {
                 if(t.win === 'Win') {

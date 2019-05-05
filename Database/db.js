@@ -28,7 +28,7 @@ class LeagueDAO {
 
         this.db.run(sql, (error) => {
             if(error) {
-                console.log("Error creating summoner table: ", error)
+                console.log("Error creating summoner table: ", error);
             } else {
                 console.log("createSummonerTable success");
             }
@@ -67,7 +67,7 @@ class LeagueDAO {
     updateSummonerRank(id, rank, callback) {
         let sql = `UPDATE summoners SET tier='${rank.tier}', rank='${rank.rank}' WHERE id=${id}`; 
 
-        console.log("Running db update")
+        console.log("Running db update");
         this.db.run(sql, (err) => {
             if(err) {
                 console.error("Error occured when updating rank in database for summoner", id); 
@@ -75,7 +75,7 @@ class LeagueDAO {
             } else {
                 callback("Summoner updated!"); 
             }
-        })
+        });
     }
 
     removeSummoner(id, callback) {
@@ -87,7 +87,7 @@ class LeagueDAO {
             if(err) {
                 callback(err)
             } else {
-                callback("Ingen league kontoer er nå knyttet til deg")
+                callback("Ingen league kontoer er nå knyttet til deg");
             }
         });
 

@@ -10,7 +10,6 @@ module.exports = {
       const id = message.author.id; 
       db.removeSummoner(id, function(msg) {
          message.channel.send(msg); 
-      })
-
+      });
    }
-}
+};

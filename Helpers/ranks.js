@@ -40,7 +40,7 @@ module.exports = {
     //1 = Promoted
     //0 = Nothing
     //-1 = Demoted
-    compareRanks: function (oldRank, newRank) {
+    compareRanks(oldRank, newRank) {
 
     if(oldRank.rank === 0 && oldRank.tier === "null") {
         return 2; 
@@ -84,7 +84,7 @@ module.exports = {
         return 4; 
     }, 
 
-    changeRankMessage: function (rankChange, newRank, summoner) {
+    changeRankMessage(rankChange, newRank, summoner) {
 
         let message = ""; 
         if(rankChange === 1) {
