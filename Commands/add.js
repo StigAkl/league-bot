@@ -18,7 +18,7 @@ module.exports = {
         fetchSummoner(summonerName.trim(), function(response) {
             if(requestOk(response.status)){
                 const summoner = response.data; 
-                summoner.author_id = message.author.id;  
+                summoner.authorId = message.author.id;  
                 summoner.tier = "null"; 
                 summoner.rank = "0"; 
 

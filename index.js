@@ -76,18 +76,20 @@ bot.on("message", async (message) => {
     let nextLevel = xp[authorId].level*10+((xp[authorId].level)*10*2); 
     console.log("Needed for neext level:",nextLevel);
     if(nextLevel <= xp[authorId].xp) {
-        xp[authorId].level = xp[authorId].level + 1
-        console.log("Level up?")
+        xp[authorId].level = xp[authorId].level + 1;
+        console.log("Level up?");
         // message.channel.send("Du gikk nettopp opp i level og er nå lvl " + xp[authorId].level + "!").then((msg) => {
         //     msg.delete(5000); 
         // })
     }
 
     fs.writeFile("./Database/xp.json", JSON.stringify(xp), (error) => {
-        if(error) console.log(error); 
+        if(error) {
+            console.log(error);
+        }
     })
 
-    if (!message.content.startsWith(prefix)) return; 
+    if (!message.content.startsWith(prefix)) { return; } 
 
     const args = message.content.slice(prefix.length).split(/ +/); 
     const commandName = args.shift().toLowerCase(); 
@@ -98,7 +100,7 @@ bot.on("message", async (message) => {
         return; 
     }
 
-   if(checkCooldowns(command, message)) { return } 
+   if(checkCooldowns(command, message)) { return ; } 
 
     try {
         command.execute(message, args); 
@@ -162,7 +164,7 @@ function checkActiveGames(callback, channel) {
                                 if(constants.getChampion(p.championId) === "Evelynn") {
                                     eveCounter.counter = eveCounter.counter + 1; 
                                     fs.writeFile("./Database/eve.json", JSON.stringify(eveCounter), (error) => {
-                                        if(error) console.log("Error writing to eve.json"); 
+                                        if(error) { console.log("Error writing to eve.json"); } 
                                     })
                                     
                                     break; 
@@ -202,7 +204,7 @@ function checkActiveGames(callback, channel) {
                     } 
                 })
                 
-            }, i*delay)
+            }, i*delay);
         }
     }) 
 }
@@ -279,7 +281,7 @@ function formatTeams(spectatorData, channel) {
         p.rank = "Unranked"; 
         p.tier = ""; 
 
-        for(league of team2League[i]) {
+        for(let league of team2League[i]) {
             if (league.queueType === constants.SOLO_RANKED_TYPE) {
                 p.rank = league.rank;
                 p.tier = league.tier;
@@ -361,13 +363,13 @@ function formatTeams(spectatorData, channel) {
 
 
 function getTeamId(team1, team2, summoner) {
-    for(player of team1) {
+    for(let player of team1) {
         if (player.summonerId === summoner.encryptedSummonerId) {
             return player.teamId; 
         }
     }
 
-    for (player of team2) {
+    for (let player of team2) {
         if(player.summonerId === summoner.encryptedSummonerId) {
             return player.teamId; 
         }
@@ -419,7 +421,7 @@ function checkRanks(channel) {
                         let oldRank = {
                             tier: summoner.tier, 
                             rank: summoner.rank
-                        }
+                        };
 
                         for(let league of leagues) {
                             if(league.queueType === constants.SOLO_RANKED_TYPE) {
@@ -433,8 +435,8 @@ function checkRanks(channel) {
                                 if(rankChange !== 0) {
                                     db.updateSummonerRank(summoner.id, newRank, (status) => { 
                                         let message = changeRankMessage(rankChange, newRank, summoner);  
-                                        sendMessage(message, channel)
-                                    })
+                                        sendMessage(message, channel);
+                                    });
                                 }
                                 break; 
                             }

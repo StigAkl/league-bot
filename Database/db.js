@@ -40,7 +40,7 @@ class LeagueDAO {
 
     addSummoner(summoner, callback) {
 
-        this.db.get("SELECT * FROM summoners WHERE id=?", summoner.author_id, (err, row) => {
+        this.db.get("SELECT * FROM summoners WHERE id=?", summoner.authorId, (err, row) => {
             let message = "";
             if(err) {
                 message = "Det har skjedd en feil med databasen.. :/ ";
@@ -48,7 +48,7 @@ class LeagueDAO {
                 if(row) {
                     message = "Følgende bruker er allerede registrert på deg: " + row.summonerName; 
                 } else {
-                    this.db.run(`INSERT INTO summoners VALUES ('${summoner.author_id}', '${summoner.name}', '${summoner.id}', '${summoner.accountId}', '${summoner.tier}', ${summoner.rank}, 0)`, (error) => {
+                    this.db.run(`INSERT INTO summoners VALUES ('${summoner.authorId}', '${summoner.name}', '${summoner.id}', '${summoner.accountId}', '${summoner.tier}', ${summoner.rank}, 0)`, (error) => {
                         if(error) {
                             message = "Det oppstod en feil når jeg forsøkte å registrere en bruker på deg";  
                         } else {

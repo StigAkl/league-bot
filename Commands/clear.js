@@ -21,7 +21,7 @@ module.exports = {
                        message.channel.send("Deleted..lots of messages :)").then(msg => {
                            msg.delete(3000); 
                        });
-                   })
+                   });
                 }
             }
         }

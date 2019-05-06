@@ -72,7 +72,7 @@ module.exports = {
                 callback(response); 
         }).catch((error) => {
                 console.error("Error fetching post stats: ", error);
-        }) 
+        });
       },
 
       requestOk(status) {
