@@ -23,7 +23,7 @@ const cooldowns = new Discord.Collection();
 const activeGames = new Discord.Collection(); 
 const postGameStatsList = new Discord.Collection(); 
 
-const commandFiles = fs.readdirSync("./Commands").filter(file => file.endsWith(".js")); 
+const commandFiles = fs.readdirSync("./Commands").filter((file) => file.endsWith(".js")); 
 const announcementChannel = "549629836478382091";
 
 //Login
@@ -48,7 +48,7 @@ bot.on("ready", async () =>  {
 
 //Handle errors
 bot.on("error", (error) => {
-    console.error('Error event:\n' + JSON.stringify(error));
+    console.error("Error event:\n" + JSON.stringify(error));
   });
 
 
@@ -193,7 +193,7 @@ function checkActiveGames(callback, channel) {
                             let isActive = postGameStatsList.has(matchId); 
                             //console.log(summoner);
                             setTimeout(() => {
-                                activeGames.delete(summoner.encryptedSummonerId)
+                                activeGames.delete(summoner.encryptedSummonerId);
                                 postGameStats(matchId, summoner, teamId, isActive, channel); 
                             }, 120000); 
     
@@ -352,12 +352,12 @@ function formatTeams(spectatorData, channel) {
            }
        ]
     }
-   }
+   };
 
    sendMessage(embedAlly, channel);
    sendMessage(embedEnemy, channel); 
 })
-})
+});
 
 }
 

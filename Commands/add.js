@@ -44,7 +44,7 @@ module.exports = {
                     callback("Status: " + response.data.status.status_code + " " + response.data.status.message); 
                 }
             }
-        })
+        });
 
         function callback(msg) {
             if(msg) {

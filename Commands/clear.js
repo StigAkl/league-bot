@@ -18,7 +18,7 @@ module.exports = {
                     args[0] = 100;
                 }
                    message.channel.bulkDelete(args[0]).then(() => {
-                       message.channel.send("Deleted..lots of messages :)").then(msg => {
+                       message.channel.send("Deleted..lots of messages :)").then((msg) => {
                            msg.delete(3000); 
                        });
                    });

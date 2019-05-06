@@ -63,7 +63,7 @@ module.exports = {
                 callback(response); 
         }).catch((error) => {
                 callback(error.response);
-        })
+        });
       },
 
       fetchPostGame: (matchId, callback) => {

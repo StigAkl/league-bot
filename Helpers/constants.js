@@ -204,5 +204,5 @@ module.exports = {
          }
    }
 },
-SOLO_RANKED_TYPE: 'RANKED_SOLO_5x5'
-}
+SOLO_RANKED_TYPE: "RANKED_SOLO_5x5"
+};

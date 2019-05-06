@@ -6,7 +6,7 @@ class LeagueDAO {
         //console.log("Connecting to database..")
         this.db = new sqlite3.Database(dbFilePath, (error) => {
             if(error) {
-                console.log("Could not connect to database", error)
+                console.log("Could not connect to database", error);
             } else {
                 //console.log("Connected to database")
             }
@@ -32,7 +32,7 @@ class LeagueDAO {
             } else {
                 console.log("createSummonerTable success");
             }
-        })
+        });
 
         this.db.close(); 
 
