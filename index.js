@@ -55,7 +55,9 @@ bot.on("error", (error) => {
 //Handle commands
 bot.on("message", async (message) => {
 
-    if(message.author.bot) { return };
+    if(message.author.bot) { 
+        return;
+    }
 
     let authorId = message.author.id; 
 
@@ -229,9 +231,9 @@ function postGameStats(matchId, summoner, teamId, isActive, channel) {
 
         let win = false; 
         for(let t of matchData.teams) {
-            console.log("Summoner team id:", teamId)
+            console.log("Summoner team id:", teamId);
             if(t.teamId === teamId) {
-                if(t.win === 'Win') {
+                if(t.win === "Win") {
                     win = true;
                 } 
             }
@@ -263,7 +265,7 @@ function formatTeams(spectatorData, channel) {
 
         if(team1League[i][0] !== undefined) {
 
-            for(league of team1League[i]) {
+            for(let league of team1League[i]) {
                 if (league.queueType === constants.SOLO_RANKED_TYPE) {
                     p.rank = league.rank; 
                     p.tier = league.tier;
@@ -302,7 +304,7 @@ function formatTeams(spectatorData, channel) {
      }
 
 
-     for (player of allyTeamObject) {
+     for (let player of allyTeamObject) {
          if(player.summonerId === spectatorData.playerSpectating.encryptedSummonerId) {
             allyTeam += "**"+player.summonerName+"** (" + constants.getChampion(parseInt(player.championId))+")\n"; 
          }
@@ -419,12 +421,12 @@ function checkRanks(channel) {
                             rank: summoner.rank
                         }
 
-                        for(league of leagues) {
+                        for(let league of leagues) {
                             if(league.queueType === constants.SOLO_RANKED_TYPE) {
                                 let newRank = {
                                     tier: league.tier,
                                     rank: getRank(league.rank)
-                                }
+                                };
                                 
                                 let rankChange = compareRanks(oldRank, newRank);
 
@@ -468,11 +470,5 @@ function checkRanks(channel) {
 
             }, checkRanksEachSummonerDelay);
           })(summoners, summoners.length);
-
-
-    })
+    });
 }
-
-function timer(ms) {
-    return new Promise(res => setTimeout(res, ms));
-   }

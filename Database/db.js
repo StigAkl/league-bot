@@ -85,7 +85,7 @@ class LeagueDAO {
 
         this.db.run(sql, function(err) {
             if(err) {
-                callback(err)
+                callback(err);
             } else {
                 callback("Ingen league kontoer er nå knyttet til deg");
             }
