@@ -1,8 +1,8 @@
-const eveCounter = require('./../Database/eve.json'); 
+const eveCounter = require("./../Database/eve.json"); 
 
 module.exports = {
- name: 'counter',
- description: 'Count how many games with eve / goal num of games',
+ name: "counter",
+ description: "Count how many games with eve / goal num of games",
  cooldown: 5,
  execute(message, args) {
 
@@ -13,4 +13,4 @@ module.exports = {
      message.channel.send(response);
    }
  }
-}
+};

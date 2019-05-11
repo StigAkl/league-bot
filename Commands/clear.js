@@ -1,6 +1,6 @@
 module.exports = {
-    name: 'clear',
-    description: 'Clear messages',
+    name: "clear",
+    description: "Clear messages",
     cooldown: 1,
     async execute(message, args) {
         
@@ -8,7 +8,7 @@ module.exports = {
             return ; 
         } else {
         if(args.length === 0) {
-            message.channel.send("Bruk: !clear <antall>")
+            message.channel.send("Bruk: !clear <antall>");
         } else {
             if(isNaN(args[0])) {
                 message.channel.send("Ugyldig antall meldinger");
@@ -18,12 +18,12 @@ module.exports = {
                     args[0] = 100;
                 }
                    message.channel.bulkDelete(args[0]).then(() => {
-                       message.channel.send("Deleted..lots of messages :)").then(msg => {
+                       message.channel.send("Deleted..lots of messages :)").then((msg) => {
                            msg.delete(3000); 
                        });
-                   })
+                   });
                 }
             }
         }
     }
-}
+};

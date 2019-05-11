@@ -1,15 +1,15 @@
 const {prefix, token, riotApiToken} = require("./botconfig.json"); 
 const Discord = require("discord.js"); 
-const {RichEmbed} = require('discord.js') 
+const {RichEmbed} = require("discord.js"); 
 const bot = new Discord.Client();
 const URL = require("./Api/api_endpoints");
-const fs = require('fs');
+const fs = require("fs");
 const xp = require("./Database/xp.json");
-const eveCounter = require('./Database/eve.json');
-const LeagueDAO = require('./Database/db')
-const {fetchActiveMatch, getRanks, fetchPostGame, fetchLeague} = require('./Api/api_fetchers'); 
-const constants = require('./Helpers/constants'); 
-const {getRank, compareRanks, changeRankMessage} = require('./Helpers/ranks'); 
+const eveCounter = require("./Database/eve.json");
+const LeagueDAO = require("./Database/db");
+const {fetchActiveMatch, getRanks, fetchPostGame, fetchLeague} = require("./Api/api_fetchers"); 
+const constants = require("./Helpers/constants"); 
+const {getRank, compareRanks, changeRankMessage} = require("./Helpers/ranks"); 
 
 //Interval delays
 const activeGameDelay = 60000; 
@@ -23,7 +23,7 @@ const cooldowns = new Discord.Collection();
 const activeGames = new Discord.Collection(); 
 const postGameStatsList = new Discord.Collection(); 
 
-const commandFiles = fs.readdirSync('./Commands').filter(file => file.endsWith('.js')); 
+const commandFiles = fs.readdirSync("./Commands").filter((file) => file.endsWith(".js")); 
 const announcementChannel = "549629836478382091";
 
 //Login
@@ -41,21 +41,23 @@ for (const file of commandFiles) {
 bot.on("ready", async () =>  {
     console.log(`${bot.user.username} er nå online`);
     //const db = new LeagueDAO("./Database/summoners.db"); 
-    setInterval(() => { checkRanks(bot.channels.get(announcementChannel))}, checkRanksDelay); 
-    setInterval(() => { checkActiveGames(sendMessage, bot.channels.get(announcementChannel)) }, activeGameDelay); 
-})
+    setInterval(() => { checkRanks(bot.channels.get(announcementChannel));}, checkRanksDelay); 
+    setInterval(() => { checkActiveGames(sendMessage, bot.channels.get(announcementChannel)); }, activeGameDelay); 
+});
 
 
 //Handle errors
-bot.on("error", error => {
-    console.error('Error event:\n' + JSON.stringify(error));
+bot.on("error", (error) => {
+    console.error("Error event:\n" + JSON.stringify(error));
   });
 
 
 //Handle commands
-bot.on("message", async message => {
+bot.on("message", async (message) => {
 
-    if(message.author.bot) return;
+    if(message.author.bot) { 
+        return;
+    }
 
     let authorId = message.author.id; 
 
@@ -74,18 +76,20 @@ bot.on("message", async message => {
     let nextLevel = xp[authorId].level*10+((xp[authorId].level)*10*2); 
     console.log("Needed for neext level:",nextLevel);
     if(nextLevel <= xp[authorId].xp) {
-        xp[authorId].level = xp[authorId].level + 1
-        console.log("Level up?")
+        xp[authorId].level = xp[authorId].level + 1;
+        console.log("Level up?");
         // message.channel.send("Du gikk nettopp opp i level og er nå lvl " + xp[authorId].level + "!").then((msg) => {
         //     msg.delete(5000); 
         // })
     }
 
     fs.writeFile("./Database/xp.json", JSON.stringify(xp), (error) => {
-        if(error) console.log(error); 
+        if(error) {
+            console.log(error);
+        }
     })
 
-    if (!message.content.startsWith(prefix)) return; 
+    if (!message.content.startsWith(prefix)) { return; } 
 
     const args = message.content.slice(prefix.length).split(/ +/); 
     const commandName = args.shift().toLowerCase(); 
@@ -96,13 +100,13 @@ bot.on("message", async message => {
         return; 
     }
 
-   if(checkCooldowns(command, message)) return; 
+   if(checkCooldowns(command, message)) { return ; } 
 
     try {
         command.execute(message, args); 
     } catch(error) {
         console.error(error); 
-        message.reply('Det oppstod en feil under utførelsen av kommandoen, prøv igjen senere!'); 
+        message.reply("Det oppstod en feil under utførelsen av kommandoen, prøv igjen senere!"); 
     }
 })
 
@@ -119,21 +123,21 @@ function checkActiveGames(callback, channel) {
 
             setTimeout( function time() {
                 fetchActiveMatch(summoner.encryptedSummonerId, (response) => { 
-                    console.log("Checking summoner ", i)
+                    console.log("Checking summoner ", i);
                     let gameType = constants.gameType(response.data.gameQueueConfigId); 
                     if(response.status === 200 && gameType !== "0") {
 
                         let team1 = []; 
                         let team2 = []; 
                         
-                        let team1_id = response.data.participants[0].teamId;
-                        for(p of response.data.participants) {
+                        let team1Id = response.data.participants[0].teamId;
+                        for(let p of response.data.participants) {
                             if(p.summonerId === summoner.encryptedSummonerId) {
                                 summoner.teamId = p.teamId; 
-                                console.log(summoner.summonerName + ":" + summoner.teamId)
+                                console.log(summoner.summonerName + ":" + summoner.teamId);
                             }
 
-                            if (p.teamId === team1_id) {
+                            if (p.teamId === team1Id) {
                                 team1.push(p); 
                             }
 
@@ -155,12 +159,12 @@ function checkActiveGames(callback, channel) {
 
 
 
-                    for(p of response.data.participants) {
+                    for(let p of response.data.participants) {
                             if(p.summonerName === eveCounter.summonerName && summoner.summonerName === eveCounter.summonerName) {
                                 if(constants.getChampion(p.championId) === "Evelynn") {
                                     eveCounter.counter = eveCounter.counter + 1; 
                                     fs.writeFile("./Database/eve.json", JSON.stringify(eveCounter), (error) => {
-                                        if(error) console.log("Error writing to eve.json"); 
+                                        if(error) { console.log("Error writing to eve.json"); } 
                                     })
                                     
                                     break; 
@@ -189,34 +193,34 @@ function checkActiveGames(callback, channel) {
                             let isActive = postGameStatsList.has(matchId); 
                             //console.log(summoner);
                             setTimeout(() => {
-                                activeGames.delete(summoner.encryptedSummonerId)
+                                activeGames.delete(summoner.encryptedSummonerId);
                                 postGameStats(matchId, summoner, teamId, isActive, channel); 
                             }, 120000); 
     
                             postGameStatsList.delete(matchId); 
-                            console.log("Deleted..")
+                            console.log("Deleted..");
                             //TODO: Add post game stats for {gameId}
                         }
                     } 
                 })
                 
-            }, i*delay)
+            }, i*delay);
         }
     }) 
 }
 
 function postGameStats(matchId, summoner, teamId, isActive, channel) {
-    console.log("POSTGAME*******************************************************")
+    console.log("POSTGAME*******************************************************");
     if(!isActive) {
-        console.error("Post game stats already handled")
+        console.error("Post game stats already handled");
         return; 
     }
     fetchPostGame(matchId, (response) => {
         let matchData = response.data; 
         let summonerId = summoner.encryptedSummonerId; 
 
-        let player = undefined; 
-        for(p of matchData.participantIdentities) {
+        let player = ""; 
+        for(let p of matchData.participantIdentities) {
             if(p.player.summonerId === summonerId) {
                 console.log("Found summoner id"); 
                 player = p.player; 
@@ -228,10 +232,10 @@ function postGameStats(matchId, summoner, teamId, isActive, channel) {
         //Check if win
 
         let win = false; 
-        for(t of matchData.teams) {
-            console.log("Summoner team id:", teamId)
+        for(let t of matchData.teams) {
+            console.log("Summoner team id:", teamId);
             if(t.teamId === teamId) {
-                if(t.win === 'Win') {
+                if(t.win === "Win") {
                     win = true;
                 } 
             }
@@ -244,8 +248,8 @@ function postGameStats(matchId, summoner, teamId, isActive, channel) {
 }
 
 function sendMessage(embed, channel) {
-    console.log("Sending..")
-    channel.send(embed)
+    console.log("Sending..");
+    channel.send(embed);
 }
 
 function formatTeams(spectatorData, channel) {
@@ -263,7 +267,7 @@ function formatTeams(spectatorData, channel) {
 
         if(team1League[i][0] !== undefined) {
 
-            for(league of team1League[i]) {
+            for(let league of team1League[i]) {
                 if (league.queueType === constants.SOLO_RANKED_TYPE) {
                     p.rank = league.rank; 
                     p.tier = league.tier;
@@ -277,9 +281,9 @@ function formatTeams(spectatorData, channel) {
         p.rank = "Unranked"; 
         p.tier = ""; 
 
-        for(league of team2League[i]) {
+        for(let league of team2League[i]) {
             if (league.queueType === constants.SOLO_RANKED_TYPE) {
-                p.rank = league.rank; 
+                p.rank = league.rank;
                 p.tier = league.tier;
             }
         } 
@@ -296,13 +300,13 @@ function formatTeams(spectatorData, channel) {
 
      let enemyTeamRank = ""; 
      let allyTeamRank = ""; 
-     for(player of enemyTeamObject) {
+     for(let player of enemyTeamObject) {
         enemyTeam += player.summonerName+" ("+constants.getChampion(player.championId)+")\n";
         enemyTeamRank += player.tier + " \t" + player.rank + "\n"; 
      }
 
 
-     for (player of allyTeamObject) {
+     for (let player of allyTeamObject) {
          if(player.summonerId === spectatorData.playerSpectating.encryptedSummonerId) {
             allyTeam += "**"+player.summonerName+"** (" + constants.getChampion(parseInt(player.championId))+")\n"; 
          }
@@ -348,24 +352,24 @@ function formatTeams(spectatorData, channel) {
            }
        ]
     }
-   }
+   };
 
    sendMessage(embedAlly, channel);
    sendMessage(embedEnemy, channel); 
 })
-})
+});
 
 }
 
 
 function getTeamId(team1, team2, summoner) {
-    for(player of team1) {
+    for(let player of team1) {
         if (player.summonerId === summoner.encryptedSummonerId) {
             return player.teamId; 
         }
     }
 
-    for (player of team2) {
+    for (let player of team2) {
         if(player.summonerId === summoner.encryptedSummonerId) {
             return player.teamId; 
         }
@@ -417,22 +421,22 @@ function checkRanks(channel) {
                         let oldRank = {
                             tier: summoner.tier, 
                             rank: summoner.rank
-                        }
+                        };
 
-                        for(league of leagues) {
+                        for(let league of leagues) {
                             if(league.queueType === constants.SOLO_RANKED_TYPE) {
                                 let newRank = {
                                     tier: league.tier,
                                     rank: getRank(league.rank)
-                                }
+                                };
                                 
                                 let rankChange = compareRanks(oldRank, newRank);
 
                                 if(rankChange !== 0) {
                                     db.updateSummonerRank(summoner.id, newRank, (status) => { 
                                         let message = changeRankMessage(rankChange, newRank, summoner);  
-                                        sendMessage(message, channel)
-                                    })
+                                        sendMessage(message, channel);
+                                    });
                                 }
                                 break; 
                             }
@@ -468,11 +472,5 @@ function checkRanks(channel) {
 
             }, checkRanksEachSummonerDelay);
           })(summoners, summoners.length);
-
-
-    })
+    });
 }
-
-function timer(ms) {
-    return new Promise(res => setTimeout(res, ms));
-   }

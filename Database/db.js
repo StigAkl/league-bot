@@ -1,4 +1,4 @@
-const sqlite3 = require('sqlite3');
+const sqlite3 = require("sqlite3");
 
 class LeagueDAO {
     constructor(dbFilePath) {
@@ -6,7 +6,7 @@ class LeagueDAO {
         //console.log("Connecting to database..")
         this.db = new sqlite3.Database(dbFilePath, (error) => {
             if(error) {
-                console.log("Could not connect to database", error)
+                console.log("Could not connect to database", error);
             } else {
                 //console.log("Connected to database")
             }
@@ -28,11 +28,11 @@ class LeagueDAO {
 
         this.db.run(sql, (error) => {
             if(error) {
-                console.log("Error creating summoner table: ", error)
+                console.log("Error creating summoner table: ", error);
             } else {
                 console.log("createSummonerTable success");
             }
-        })
+        });
 
         this.db.close(); 
 
@@ -40,15 +40,15 @@ class LeagueDAO {
 
     addSummoner(summoner, callback) {
 
-        this.db.get("SELECT * FROM summoners WHERE id=?", summoner.author_id, (err, row) => {
+        this.db.get("SELECT * FROM summoners WHERE id=?", summoner.authorId, (err, row) => {
             let message = "";
             if(err) {
-                message = "Det har skjedd en feil med databasen.. :/ "
+                message = "Det har skjedd en feil med databasen.. :/ ";
             } else {
                 if(row) {
                     message = "Følgende bruker er allerede registrert på deg: " + row.summonerName; 
                 } else {
-                    this.db.run(`INSERT INTO summoners VALUES ('${summoner.author_id}', '${summoner.name}', '${summoner.id}', '${summoner.accountId}', '${summoner.tier}', ${summoner.rank}, 0)`, (error) => {
+                    this.db.run(`INSERT INTO summoners VALUES ('${summoner.authorId}', '${summoner.name}', '${summoner.id}', '${summoner.accountId}', '${summoner.tier}', ${summoner.rank}, 0)`, (error) => {
                         if(error) {
                             message = "Det oppstod en feil når jeg forsøkte å registrere en bruker på deg";  
                         } else {
@@ -67,7 +67,7 @@ class LeagueDAO {
     updateSummonerRank(id, rank, callback) {
         let sql = `UPDATE summoners SET tier='${rank.tier}', rank='${rank.rank}' WHERE id=${id}`; 
 
-        console.log("Running db update")
+        console.log("Running db update");
         this.db.run(sql, (err) => {
             if(err) {
                 console.error("Error occured when updating rank in database for summoner", id); 
@@ -75,7 +75,7 @@ class LeagueDAO {
             } else {
                 callback("Summoner updated!"); 
             }
-        })
+        });
     }
 
     removeSummoner(id, callback) {
@@ -85,11 +85,11 @@ class LeagueDAO {
 
         this.db.run(sql, function(err) {
             if(err) {
-                callback(err)
+                callback(err);
             } else {
-                callback("Ingen league kontoer er nå knyttet til deg")
+                callback("Ingen league kontoer er nå knyttet til deg");
             }
-        })
+        });
 
         this.db.close(); 
     }
@@ -101,7 +101,7 @@ class LeagueDAO {
                     callback(rows); 
                 }
             }
-        })
+        });
     }
 }
 

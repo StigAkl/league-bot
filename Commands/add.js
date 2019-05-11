@@ -1,24 +1,24 @@
-const LeagueDAO = require('./../Database/db'); 
-const {fetchSummoner, fetchLeague, requestOk} = require('./../Api/api_fetchers'); 
-const {getRank} = require('./../Helpers/ranks')
-const constants = require('./../Helpers/constants')
+const LeagueDAO = require("./../Database/db"); 
+const {fetchSummoner, fetchLeague, requestOk} = require("./../Api/api_fetchers"); 
+const {getRank} = require("./../Helpers/ranks");
+const constants = require("./../Helpers/constants");
 
 module.exports = {
-    name: 'add',
-    description: '!add <Summoner Name> - Adds your summoner to the live game tracking',
+    name: "add",
+    description: "!add <Summoner Name> - Adds your summoner to the live game tracking",
     cooldown: 5,
 
     execute(message, args) {
 
-        let db = new LeagueDAO('./Database/summoners.db'); 
+        let db = new LeagueDAO("./Database/summoners.db"); 
         let summonerName = ""; 
-        for(arg of args) {
-            summonerName+= arg + ' ';
+        for(let arg of args) {
+            summonerName+= arg + " ";
         }
         fetchSummoner(summonerName.trim(), function(response) {
             if(requestOk(response.status)){
                 const summoner = response.data; 
-                summoner.author_id = message.author.id;  
+                summoner.authorId = message.author.id;  
                 summoner.tier = "null"; 
                 summoner.rank = "0"; 
 
@@ -39,12 +39,12 @@ module.exports = {
 
             } else {
                 if(response.data.status.status_code === 404) {
-                    callback("Kunne ikke finne noen summoners med dette navnet. Sjekk at du skrev inn riktig navn")
+                    callback("Kunne ikke finne noen summoners med dette navnet. Sjekk at du skrev inn riktig navn");
                 } else {
                     callback("Status: " + response.data.status.status_code + " " + response.data.status.message); 
                 }
             }
-        })
+        });
 
         function callback(msg) {
             if(msg) {
@@ -52,4 +52,4 @@ module.exports = {
             }
         }
     }
-}
+};

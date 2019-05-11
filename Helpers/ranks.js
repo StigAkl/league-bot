@@ -40,7 +40,7 @@ module.exports = {
     //1 = Promoted
     //0 = Nothing
     //-1 = Demoted
-    compareRanks: function (oldRank, newRank) {
+    compareRanks(oldRank, newRank) {
 
     if(oldRank.rank === 0 && oldRank.tier === "null") {
         return 2; 
@@ -68,7 +68,7 @@ module.exports = {
     }
 },
 
-    getRank: function (rank) {
+    getRank(rank) {
         if(rank === "I") {
             return 1;
         }
@@ -84,20 +84,20 @@ module.exports = {
         return 4; 
     }, 
 
-    changeRankMessage: function (rankChange, newRank, summoner) {
+    changeRankMessage(rankChange, newRank, summoner) {
 
         let message = ""; 
         if(rankChange === 1) {
             message = "```yaml\n" + summoner.summonerName + " got promoted to " + newRank.tier + " " + newRank.rank + "!" + "\n``` :smile:"; 
         } else {
             if(rankChange === -1) {
-                message = "```diff\n-" +summoner.summonerName + " got demoted to " + newRank.tier + " " + newRank.rank + " ``` :cry:" ; ; 
+                message = "```diff\n-" +summoner.summonerName + " got demoted to " + newRank.tier + " " + newRank.rank + " ``` :cry:" ;
             } else {
                 if (rankChange === 2) {
-                    message = "```fix\n" +summoner.summonerName + " just finished the placement series and got placed in " + newRank.tier + " " + newRank.rank + ". Good luck!"+ "\n``` :smile:"; ; 
+                    message = "```fix\n" +summoner.summonerName + " just finished the placement series and got placed in " + newRank.tier + " " + newRank.rank + ". Good luck!"+ "\n``` :smile:"; 
                 }
             }
         }
         return message; 
     }
-}
+};
