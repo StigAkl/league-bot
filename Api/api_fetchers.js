@@ -1,11 +1,11 @@
-const URL = require("./api_endpoints"); 
+onst URL = require("./api_endpoints"); 
 const axios = require("axios");
 const {riotApiToken} = require("./../botconfig.json");
 
 
+
+//API Fetchers
 module.exports = {
-
-
       fetchSummoner: (summonerName, callback) => {     
               axios.get(URL.basePath+URL.summonerByName+summonerName+"?api_key="+riotApiToken).then(function(response) {
                       callback(response); 
